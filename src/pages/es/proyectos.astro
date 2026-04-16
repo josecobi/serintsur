@@ -1,0 +1,54 @@
+---
+// Projects index page (Spanish).
+//
+// Backend-owned placeholder: fetches projects from Sanity, maps them to the
+// client-safe `ProjectCardData` shape (server-side, to keep the image URL
+// builder and SANITY_PROJECT_ID off the client bundle), and mounts the
+// ProjectFilter React island. The Designer replaces the HTML shell / adds
+// hero + surrounding page chrome; the `<ProjectFilter />` mount should
+// survive the redesign as-is.
+
+import Chatbot from '~/components/chatbot/Chatbot';
+import ProjectFilter from '~/components/project-filter/ProjectFilter';
+import { projectsToCardData } from '~/components/project-filter/mapper';
+import { getStrings } from '~/lib/i18n';
+import { getProjects } from '~/lib/sanity';
+import '~/styles/global.css';
+
+const locale = 'es';
+const t = getStrings(locale);
+
+// Fetch once at build time — Sanity is the source of truth and the dataset is
+// small enough that server-side filtering isn't worth the extra round trips.
+// Fails open: a Sanity outage at build time yields an empty state rather than
+// breaking the page.
+let projects: Awaited<ReturnType<typeof getProjects>> = [];
+try {
+  projects = await getProjects();
+} catch (error) {
+  console.error('[proyectos] Failed to fetch projects from Sanity:', error);
+}
+
+const cards = projectsToCardData(projects, locale);
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{t.nav.projects} — Serintsur</title>
+    <meta name="description" content={t.site.descriptionShort} />
+  </head>
+  <body class="bg-white min-h-screen">
+    <main class="py-8">
+      <header class="max-w-5xl mx-auto px-4 mb-6">
+        <h1 class="text-3xl sm:text-4xl font-semibold">{t.nav.projects}</h1>
+      </header>
+      <div class="max-w-5xl mx-auto px-4">
+        <ProjectFilter client:load projects={cards} language={locale} />
+      </div>
+    </main>
+    <Chatbot client:idle language={locale} />
+  </body>
+</html>

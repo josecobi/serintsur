@@ -1,0 +1,243 @@
+---
+// Home page (Spanish).
+//
+// Backend-owned placeholder: fetches everything the home page needs from
+// Sanity in one frontmatter pass and mounts the shell. The Designer replaces
+// the visual layout; backend guarantees every `.home-*` hook below receives
+// real data (or a graceful empty state on Sanity failure).
+
+import Chatbot from '~/components/chatbot/Chatbot';
+import { projectsToCardData } from '~/components/project-filter/mapper';
+import { getStrings } from '~/lib/i18n';
+import {
+  getActiveClientLogos,
+  getActiveServices,
+  getActiveTestimonials,
+  getFeaturedProjects,
+  getSiteSettings,
+  pickLocale,
+  urlForImage,
+} from '~/lib/sanity';
+import '~/styles/global.css';
+
+const locale = 'es';
+const t = getStrings(locale);
+
+// Fetch in parallel — one page load, one frontmatter pass. Every call is
+// wrapped so a single Sanity outage can't blank the whole page.
+const [siteSettings, services, featuredProjectsRaw, testimonials, clientLogos] =
+  await Promise.all([
+    getSiteSettings().catch((e) => {
+      console.error('[home] siteSettings fetch failed:', e);
+      return null;
+    }),
+    getActiveServices().catch((e) => {
+      console.error('[home] services fetch failed:', e);
+      return [];
+    }),
+    getFeaturedProjects(4).catch((e) => {
+      console.error('[home] featured projects fetch failed:', e);
+      return [];
+    }),
+    getActiveTestimonials().catch((e) => {
+      console.error('[home] testimonials fetch failed:', e);
+      return [];
+    }),
+    getActiveClientLogos().catch((e) => {
+      console.error('[home] client logos fetch failed:', e);
+      return [];
+    }),
+  ]);
+
+const featuredProjects = projectsToCardData(featuredProjectsRaw, locale);
+const tagline = pickLocale(siteSettings?.tagline, locale) ?? t.site.tagline;
+const stats = siteSettings?.stats;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{t.site.name} — {t.site.tagline}</title>
+    <meta name="description" content={t.site.descriptionShort} />
+  </head>
+  <body class="bg-white min-h-screen">
+    <main class="home-root">
+      {/* Hero */}
+      <section class="home-hero max-w-5xl mx-auto px-4 py-10">
+        <h1 class="home-hero-title text-3xl sm:text-5xl font-semibold">
+          {t.site.name}
+        </h1>
+        <p class="home-hero-tagline mt-3 text-lg text-gray-700">{tagline}</p>
+        <div class="home-hero-ctas mt-5 flex flex-wrap gap-3">
+          <a href={`/${locale}/presupuesto`} class="home-cta-primary bg-gray-900 text-white rounded-md px-4 py-2 text-sm">
+            {t.common.requestQuote}
+          </a>
+          <a href={`/${locale}/proyectos`} class="home-cta-secondary border border-gray-300 rounded-md px-4 py-2 text-sm">
+            {t.common.seeProjects}
+          </a>
+        </div>
+      </section>
+
+      {/* Stats (from siteSettings) */}
+      {stats && (
+        <section class="home-stats max-w-5xl mx-auto px-4 py-6 border-t border-gray-200">
+          <dl class="home-stats-grid grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+            {stats.projectsCompleted !== undefined && (
+              <div class="home-stat">
+                <dt class="text-sm text-gray-600">Proyectos</dt>
+                <dd class="text-2xl font-semibold">{stats.projectsCompleted}</dd>
+              </div>
+            )}
+            {stats.yearsExperience !== undefined && (
+              <div class="home-stat">
+                <dt class="text-sm text-gray-600">Años</dt>
+                <dd class="text-2xl font-semibold">{stats.yearsExperience}</dd>
+              </div>
+            )}
+            {stats.teamSize !== undefined && (
+              <div class="home-stat">
+                <dt class="text-sm text-gray-600">Equipo</dt>
+                <dd class="text-2xl font-semibold">{stats.teamSize}</dd>
+              </div>
+            )}
+            {stats.citiesCovered !== undefined && (
+              <div class="home-stat">
+                <dt class="text-sm text-gray-600">Ciudades</dt>
+                <dd class="text-2xl font-semibold">{stats.citiesCovered}</dd>
+              </div>
+            )}
+          </dl>
+        </section>
+      )}
+
+      {/* Services */}
+      <section class="home-services max-w-5xl mx-auto px-4 py-10 border-t border-gray-200">
+        <header class="mb-5 flex items-baseline justify-between">
+          <h2 class="home-section-title text-2xl font-semibold">{t.nav.services}</h2>
+          <a href={`/${locale}/servicios`} class="text-sm text-gray-600 underline">
+            {t.common.seeAll}
+          </a>
+        </header>
+        {services.length === 0 ? (
+          <p class="text-gray-500">—</p>
+        ) : (
+          <ul class="home-services-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {services.map((service) => {
+              const title = pickLocale(service.title, locale) ?? '';
+              const description = pickLocale(service.description, locale);
+              return (
+                <li class="home-service-card border border-gray-200 rounded-lg p-4">
+                  <a href={`/${locale}/servicios/${service.slug.current}`} class="block group">
+                    <h3 class="home-service-title font-semibold text-base mb-1 group-hover:underline">
+                      {title}
+                    </h3>
+                    {description && (
+                      <p class="home-service-desc text-sm text-gray-600 line-clamp-3">
+                        {description}
+                      </p>
+                    )}
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
+
+      {/* Featured projects */}
+      <section class="home-featured max-w-5xl mx-auto px-4 py-10 border-t border-gray-200">
+        <header class="mb-5 flex items-baseline justify-between">
+          <h2 class="home-section-title text-2xl font-semibold">{t.nav.projects}</h2>
+          <a href={`/${locale}/proyectos`} class="text-sm text-gray-600 underline">
+            {t.common.seeAll}
+          </a>
+        </header>
+        {featuredProjects.length === 0 ? (
+          <p class="text-gray-500">—</p>
+        ) : (
+          <ul class="home-featured-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {featuredProjects.map((project) => (
+              <li class="home-featured-card">
+                <a
+                  href={`/${locale}/proyectos/${project.slug}`}
+                  class="block border border-gray-200 rounded-lg overflow-hidden hover:border-gray-900"
+                >
+                  <div class="aspect-[4/3] bg-gray-100 overflow-hidden">
+                    {project.imageUrl && (
+                      <img
+                        src={project.imageUrl}
+                        alt={project.imageAlt ?? project.title}
+                        loading="lazy"
+                        class="w-full h-full object-cover"
+                      />
+                    )}
+                  </div>
+                  <div class="p-3">
+                    <h3 class="font-semibold text-sm line-clamp-2">{project.title}</h3>
+                    {project.year && <p class="text-xs text-gray-500 mt-1">{project.year}</p>}
+                  </div>
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {/* Testimonials */}
+      {testimonials.length > 0 && (
+        <section class="home-testimonials max-w-5xl mx-auto px-4 py-10 border-t border-gray-200">
+          <h2 class="home-section-title text-2xl font-semibold mb-5">Testimonios</h2>
+          <ul class="home-testimonials-grid grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {testimonials.map((testimonial) => {
+              const quote = pickLocale(testimonial.quote, locale);
+              return (
+                <li class="home-testimonial border border-gray-200 rounded-lg p-4">
+                  {quote && <blockquote class="text-sm italic">“{quote}”</blockquote>}
+                  <div class="mt-2 text-xs text-gray-600">
+                    <span class="font-medium">{testimonial.author}</span>
+                    {testimonial.role && <span> · {testimonial.role}</span>}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      {/* Client logos */}
+      {clientLogos.length > 0 && (
+        <section class="home-clients max-w-5xl mx-auto px-4 py-10 border-t border-gray-200">
+          <h2 class="home-section-title text-xl font-semibold mb-5">Clientes</h2>
+          <ul class="home-clients-grid flex flex-wrap items-center gap-6">
+            {clientLogos.map((client) => {
+              const logoUrl = urlForImage(client.logo).width(160).url();
+              const wrapper = client.url ? 'a' : 'div';
+              const Wrapper = wrapper as 'a' | 'div';
+              return (
+                <li class="home-client">
+                  <Wrapper
+                    href={client.url}
+                    target={client.url ? '_blank' : undefined}
+                    rel={client.url ? 'noopener noreferrer' : undefined}
+                    class="inline-block"
+                  >
+                    <img
+                      src={logoUrl}
+                      alt={client.name}
+                      loading="lazy"
+                      class="h-10 w-auto grayscale opacity-70 hover:opacity-100"
+                    />
+                  </Wrapper>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+    </main>
+
+    <Chatbot client:idle language={locale} />
+  </body>
+</html>
