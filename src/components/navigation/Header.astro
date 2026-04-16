@@ -1,0 +1,178 @@
+---
+/*
+  Header — sticky top bar.
+  Desktop: logo · nav · lang switcher · CTA.
+  Mobile: logo · lang · hamburger (opens MobileMenu).
+  Scroll adds a subtle shadow and tighter bar height.
+
+  TODO(content): nav labels + CTA label per locale will come from i18n strings.
+  Until then, we select a static ES/EN/DE copy table here.
+*/
+import Container from "../ui/Container.astro";
+import Button from "../ui/Button.astro";
+import LanguageSwitcher from "./LanguageSwitcher.astro";
+import MobileMenu from "./MobileMenu.astro";
+
+type Locale = "es" | "en" | "de";
+
+export interface Props {
+  currentLocale?: Locale;
+}
+
+const { currentLocale: propLocale } = Astro.props;
+const pathname = Astro.url.pathname;
+const currentLocale: Locale =
+  propLocale ?? ((pathname.match(/^\/(es|en|de)(\/|$)/)?.[1] as Locale | undefined) ?? "es");
+
+const navCopy: Record<Locale, { items: { slug: string; label: string }[]; cta: string; menuLabel: string }> = {
+  es: {
+    items: [
+      { slug: "", label: "Inicio" },
+      { slug: "servicios", label: "Servicios" },
+      { slug: "proyectos", label: "Proyectos" },
+      { slug: "sobre-nosotros", label: "Sobre nosotros" },
+      { slug: "contacto", label: "Contacto" },
+    ],
+    cta: "Presupuesto",
+    menuLabel: "Abrir menú",
+  },
+  en: {
+    items: [
+      { slug: "", label: "Home" },
+      { slug: "servicios", label: "Services" },
+      { slug: "proyectos", label: "Projects" },
+      { slug: "sobre-nosotros", label: "About" },
+      { slug: "contacto", label: "Contact" },
+    ],
+    cta: "Get a quote",
+    menuLabel: "Open menu",
+  },
+  de: {
+    items: [
+      { slug: "", label: "Start" },
+      { slug: "servicios", label: "Leistungen" },
+      { slug: "proyectos", label: "Projekte" },
+      { slug: "sobre-nosotros", label: "Über uns" },
+      { slug: "contacto", label: "Kontakt" },
+    ],
+    cta: "Angebot",
+    menuLabel: "Menü öffnen",
+  },
+};
+
+const { items, cta, menuLabel } = navCopy[currentLocale];
+const navItems = items.map((item) => ({
+  href: `/${currentLocale}/${item.slug}${item.slug ? "/" : ""}`,
+  label: item.label,
+}));
+
+const quoteSlug = currentLocale === "es" ? "presupuesto" : currentLocale === "en" ? "quote" : "angebot";
+const ctaHref = `/${currentLocale}/${quoteSlug}/`;
+
+function isActive(href: string): boolean {
+  if (href === `/${currentLocale}/`) return pathname === href;
+  return pathname === href || pathname.startsWith(href);
+}
+---
+
+<header
+  id="site-header"
+  class="sticky top-0 z-40 w-full border-b border-sand-200 bg-white/95 backdrop-blur-md transition-shadow duration-200 data-[scrolled=true]:shadow-md"
+>
+  <Container width="wide">
+    <div class="flex h-16 items-center justify-between gap-4 lg:h-20">
+      <!-- Logo -->
+      <a
+        href={`/${currentLocale}/`}
+        class="flex items-center gap-2 text-navy transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-4 rounded-sm"
+        aria-label="Serintsur Multiservicios — Inicio"
+      >
+        <!-- Placeholder mark until logo SVG lands -->
+        <span class="inline-flex h-9 w-9 items-center justify-center rounded-md bg-navy text-white font-display text-lg font-bold">
+          S
+        </span>
+        <span class="font-display text-lg font-bold tracking-tight text-navy sm:text-xl">
+          Serintsur
+        </span>
+      </a>
+
+      <!-- Desktop nav -->
+      <nav class="hidden lg:flex" aria-label="Navegación principal">
+        <ul class="flex items-center gap-1">
+          {
+            navItems.map((item) => {
+              const active = isActive(item.href);
+              return (
+                <li>
+                  <a
+                    href={item.href}
+                    aria-current={active ? "page" : undefined}
+                    class:list={[
+                      "relative inline-flex items-center px-3 py-2 font-sans text-sm font-medium transition-colors",
+                      "focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-2 rounded-sm",
+                      active
+                        ? "text-navy after:absolute after:bottom-0 after:left-3 after:right-3 after:h-[2px] after:bg-orange after:rounded-sm"
+                        : "text-sand-700 hover:text-navy",
+                    ]}
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              );
+            })
+          }
+        </ul>
+      </nav>
+
+      <!-- Right cluster -->
+      <div class="flex items-center gap-2 sm:gap-4">
+        <div class="hidden sm:block">
+          <LanguageSwitcher currentLocale={currentLocale} tone="light" />
+        </div>
+
+        <!-- Desktop CTA -->
+        <div class="hidden lg:block">
+          <Button variant="primary" size="sm" href={ctaHref}>{cta}</Button>
+        </div>
+
+        <!-- Mobile hamburger -->
+        <button
+          type="button"
+          data-mobile-menu-open
+          aria-label={menuLabel}
+          aria-controls="mobile-menu"
+          class="inline-flex h-10 w-10 items-center justify-center rounded-md text-navy transition-colors hover:bg-sand-100 focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-2 lg:hidden"
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="4" y1="7" x2="20" y2="7"></line>
+            <line x1="4" y1="12" x2="20" y2="12"></line>
+            <line x1="4" y1="17" x2="20" y2="17"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </Container>
+</header>
+
+<MobileMenu
+  currentLocale={currentLocale}
+  navItems={navItems}
+  ctaLabel={cta}
+  ctaHref={ctaHref}
+/>
+
+<script>
+  /*
+    Add [data-scrolled=true] on the header after the user scrolls past a small
+    threshold. Used to show the shadow and slightly compact the bar.
+  */
+  const header = document.getElementById("site-header");
+  if (header) {
+    const update = () => {
+      const scrolled = window.scrollY > 8;
+      header.dataset.scrolled = scrolled ? "true" : "false";
+    };
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+  }
+</script>

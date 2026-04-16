@@ -1,0 +1,66 @@
+---
+/*
+  SectionHeading — standard section header block.
+  Structure: [eyebrow] → [accent rule] → <h2> → [subtitle paragraph]
+  Use `align="center"` sparingly; most sections are left-aligned per brand voice.
+*/
+export interface Props {
+  eyebrow?: string;
+  title: string;
+  subtitle?: string;
+  align?: "left" | "center";
+  accent?: boolean;
+  level?: "h1" | "h2" | "h3";
+  tone?: "light" | "dark"; // "dark" = for navy backgrounds
+  class?: string;
+}
+
+const {
+  eyebrow,
+  title,
+  subtitle,
+  align = "left",
+  accent = true,
+  level = "h2",
+  tone = "light",
+  class: className = "",
+} = Astro.props;
+
+const Heading = level;
+
+const alignMap = {
+  left: "items-start text-left",
+  center: "items-center text-center mx-auto",
+};
+
+const titleSize = level === "h1" ? "text-h1" : level === "h3" ? "text-h3" : "text-h2";
+const titleColor = tone === "dark" ? "text-white" : "text-navy";
+const subtitleColor = tone === "dark" ? "text-white/75" : "text-sand-700";
+const eyebrowColor = tone === "dark" ? "text-orange-light" : "text-orange";
+---
+
+<div class:list={["flex flex-col gap-4 max-w-[60ch]", alignMap[align], className]}>
+  {
+    (eyebrow || accent) && (
+      <div class:list={["flex items-center gap-3", align === "center" && "justify-center"]}>
+        {accent && <span class="inline-block h-[3px] w-10 rounded-sm bg-orange" aria-hidden="true" />}
+        {eyebrow && (
+          <span class:list={["font-sans text-xs font-semibold uppercase tracking-[0.08em]", eyebrowColor]}>
+            {eyebrow}
+          </span>
+        )}
+      </div>
+    )
+  }
+  <Heading class:list={["font-display font-bold", titleSize, titleColor]}>
+    {title}
+  </Heading>
+  {
+    subtitle && (
+      <p class:list={["text-base md:text-lg leading-relaxed", subtitleColor]}>
+        {subtitle}
+      </p>
+    )
+  }
+  <slot />
+</div>

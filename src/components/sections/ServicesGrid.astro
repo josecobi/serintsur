@@ -1,0 +1,131 @@
+---
+/*
+  ServicesGrid — 4 service cards. Responsive: 1 / 2 / 4 columns.
+  `icon` is a string key resolved to an inline SVG in the lookup below; unknown
+  keys fall back to a generic cube icon. Pass `href` to make each card a link.
+*/
+import Container from "../ui/Container.astro";
+import SectionHeading from "../ui/SectionHeading.astro";
+import Card from "../ui/Card.astro";
+
+export type ServiceIcon = "reformas" | "rehabilitacion" | "construccion" | "mantenimiento" | "default";
+
+export interface Service {
+  title: string;
+  description: string;
+  href: string;
+  icon?: ServiceIcon;
+  imageSrc?: string;
+  imageAlt?: string;
+  linkLabel?: string;
+}
+
+export interface Props {
+  heading: { eyebrow?: string; title: string; subtitle?: string };
+  services: Service[];
+  linkLabelDefault?: string;
+  background?: "white" | "offwhite";
+  class?: string;
+}
+
+const {
+  heading,
+  services,
+  linkLabelDefault = "Saber más",
+  background = "offwhite",
+  class: className = "",
+} = Astro.props;
+
+const bgClass = background === "white" ? "bg-white" : "bg-offwhite";
+---
+
+<section class:list={["relative", bgClass, className]} aria-labelledby="services-heading">
+  <Container width="wide" padY="lg">
+    <div class="mb-12 md:mb-16">
+      <SectionHeading
+        eyebrow={heading.eyebrow}
+        title={heading.title}
+        subtitle={heading.subtitle}
+      >
+        <span id="services-heading" class="sr-only">{heading.title}</span>
+      </SectionHeading>
+    </div>
+
+    <ul class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        services.map((service) => {
+          const linkLabel = service.linkLabel ?? linkLabelDefault;
+          return (
+            <li>
+              <Card
+                variant="bordered"
+                padding="lg"
+                href={service.href}
+                ariaLabel={`${service.title} — ${linkLabel}`}
+                class="h-full border-sand-200 hover:border-navy"
+              >
+                <!-- Icon tile -->
+                <div class="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-md bg-navy text-white transition-colors group-hover:bg-orange">
+                  {service.icon === "reformas" && (
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M3 21h18"/>
+                      <path d="M5 21V7l7-4 7 4v14"/>
+                      <path d="M9 9h1"/>
+                      <path d="M9 13h1"/>
+                      <path d="M14 9h1"/>
+                      <path d="M14 13h1"/>
+                      <path d="M9 17h6"/>
+                    </svg>
+                  )}
+                  {service.icon === "rehabilitacion" && (
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M4 21V5a2 2 0 0 1 2-2h8l6 6v12"/>
+                      <path d="M14 3v6h6"/>
+                      <path d="M8 13h4"/>
+                      <path d="M8 17h8"/>
+                    </svg>
+                  )}
+                  {service.icon === "construccion" && (
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M2 20h20"/>
+                      <path d="M4 20V10l8-5 8 5v10"/>
+                      <path d="M9 20v-6h6v6"/>
+                      <path d="M12 8v0.01"/>
+                    </svg>
+                  )}
+                  {service.icon === "mantenimiento" && (
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76Z"/>
+                    </svg>
+                  )}
+                  {(!service.icon || service.icon === "default") && (
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="m21 16-9 5-9-5V8l9-5 9 5v8Z"/>
+                      <path d="m3.3 7 8.7 5 8.7-5"/>
+                      <path d="M12 22V12"/>
+                    </svg>
+                  )}
+                </div>
+
+                <h3 class="font-display text-lg font-semibold text-navy transition-colors group-hover:text-navy">
+                  {service.title}
+                </h3>
+                <p class="mt-3 text-sm leading-relaxed text-sand-700">
+                  {service.description}
+                </p>
+
+                <span class="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-navy transition-colors group-hover:text-orange">
+                  {linkLabel}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="transition-transform duration-200 group-hover:translate-x-1">
+                    <path d="M5 12h14"/>
+                    <path d="m12 5 7 7-7 7"/>
+                  </svg>
+                </span>
+              </Card>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </Container>
+</section>

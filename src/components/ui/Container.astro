@@ -1,0 +1,43 @@
+---
+export interface Props {
+  as?: "div" | "section" | "article" | "header" | "footer" | "main" | "nav";
+  width?: "narrow" | "wide" | "prose" | "full";
+  padY?: "none" | "sm" | "md" | "lg" | "xl";
+  class?: string;
+}
+
+const { as: Tag = "div", width = "wide", padY = "none", class: className = "" } = Astro.props;
+
+const widthMap = {
+  narrow: "max-w-[64rem]",
+  wide: "max-w-[80rem]",
+  prose: "max-w-[68ch]",
+  full: "max-w-none",
+};
+
+/*
+  Vertical padding scale (mobile → desktop):
+    sm:  32 → 48
+    md:  48 → 64
+    lg:  64 → 96
+    xl:  96 → 128
+*/
+const padYMap = {
+  none: "",
+  sm: "py-8 md:py-12",
+  md: "py-12 md:py-16",
+  lg: "py-16 md:py-24",
+  xl: "py-24 md:py-32",
+};
+---
+
+<Tag
+  class:list={[
+    "mx-auto w-full px-4 sm:px-6 lg:px-8",
+    widthMap[width],
+    padYMap[padY],
+    className,
+  ]}
+>
+  <slot />
+</Tag>

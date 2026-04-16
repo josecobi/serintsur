@@ -1,0 +1,71 @@
+---
+/*
+  Card — base surface for project tiles, service cards, feature blocks.
+  Slots: `media` (image/video top), default (body), `footer` (bottom row).
+  Pass `href` to make the whole card a link with hover affordances.
+*/
+export interface Props {
+  variant?: "default" | "bordered" | "elevated" | "navy";
+  padding?: "none" | "sm" | "md" | "lg";
+  href?: string;
+  hoverable?: boolean;
+  as?: "div" | "article" | "li";
+  class?: string;
+  ariaLabel?: string;
+}
+
+const {
+  variant = "default",
+  padding = "md",
+  href,
+  hoverable = !!href,
+  as: Tag = href ? "article" : "div",
+  class: className = "",
+  ariaLabel,
+} = Astro.props;
+
+const variantMap = {
+  default: "bg-white",
+  bordered: "bg-white border border-sand-200",
+  elevated: "bg-white shadow-md",
+  navy: "bg-navy text-white",
+};
+
+const paddingMap = {
+  none: "",
+  sm: "p-4",
+  md: "p-6",
+  lg: "p-8",
+};
+
+const hoverClasses = hoverable
+  ? "transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg"
+  : "";
+---
+
+<Tag
+  class:list={[
+    "group relative overflow-hidden rounded-lg",
+    variantMap[variant],
+    hoverClasses,
+    className,
+  ]}
+  aria-label={ariaLabel}
+>
+  <slot name="media" />
+  <div class:list={[paddingMap[padding]]}>
+    <slot />
+  </div>
+  <slot name="footer" />
+  {
+    href && (
+      <a
+        href={href}
+        class="absolute inset-0 focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-[-2px] rounded-lg"
+        aria-label={ariaLabel}
+      >
+        <span class="sr-only">{ariaLabel ?? "Ver más"}</span>
+      </a>
+    )
+  }
+</Tag>

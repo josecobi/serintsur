@@ -1,0 +1,35 @@
+---
+export interface Props {
+  variant?: "neutral" | "navy" | "orange" | "success" | "error" | "info";
+  size?: "sm" | "md";
+  as?: "span" | "div";
+  class?: string;
+}
+
+const { variant = "neutral", size = "sm", as: Tag = "span", class: className = "" } = Astro.props;
+
+const sizeMap = {
+  sm: "h-6 px-2.5 text-[0.6875rem] tracking-wider",
+  md: "h-7 px-3 text-xs tracking-wide",
+};
+
+const variantMap = {
+  neutral: "bg-sand-100 text-sand-700 border border-sand-200",
+  navy: "bg-navy text-white",
+  orange: "bg-orange-light/15 text-orange-dark border border-orange-light/40",
+  success: "bg-success-soft text-success border border-success/20",
+  error: "bg-error-soft text-error border border-error/20",
+  info: "bg-info/10 text-info border border-info/20",
+};
+---
+
+<Tag
+  class:list={[
+    "inline-flex items-center gap-1.5 rounded-sm font-semibold uppercase",
+    sizeMap[size],
+    variantMap[variant],
+    className,
+  ]}
+>
+  <slot />
+</Tag>

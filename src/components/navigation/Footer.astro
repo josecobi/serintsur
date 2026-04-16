@@ -1,0 +1,284 @@
+---
+/*
+  Footer — navy background, four columns, legal bar.
+  Copy is locale-aware with a static fallback table until Content delivers i18n.
+*/
+import Container from "../ui/Container.astro";
+
+type Locale = "es" | "en" | "de";
+
+export interface Props {
+  currentLocale?: Locale;
+}
+
+const { currentLocale: propLocale } = Astro.props;
+const pathname = Astro.url.pathname;
+const currentLocale: Locale =
+  propLocale ?? ((pathname.match(/^\/(es|en|de)(\/|$)/)?.[1] as Locale | undefined) ?? "es");
+
+type FooterCopy = {
+  tagline: string;
+  servicesHeading: string;
+  companyHeading: string;
+  contactHeading: string;
+  services: { slug: string; label: string }[];
+  company: { slug: string; label: string }[];
+  legalHeading: string;
+  rightsReserved: string;
+  legalLinks: { slug: string; label: string }[];
+  whatsappLabel: string;
+};
+
+const copy: Record<Locale, FooterCopy> = {
+  es: {
+    tagline: "Construcción, rehabilitación y mantenimiento de edificios en Cádiz, Málaga y Sevilla.",
+    servicesHeading: "Servicios",
+    companyHeading: "Empresa",
+    contactHeading: "Contacto",
+    services: [
+      { slug: "servicios/reformas", label: "Reformas integrales" },
+      { slug: "servicios/rehabilitacion", label: "Rehabilitación de fachadas" },
+      { slug: "servicios/construccion", label: "Construcción de villas" },
+      { slug: "servicios/mantenimiento", label: "Mantenimiento" },
+    ],
+    company: [
+      { slug: "sobre-nosotros", label: "Sobre nosotros" },
+      { slug: "proyectos", label: "Proyectos" },
+      { slug: "presupuesto", label: "Solicitar presupuesto" },
+      { slug: "contacto", label: "Contacto" },
+    ],
+    legalHeading: "Legal",
+    rightsReserved: "Todos los derechos reservados",
+    legalLinks: [
+      { slug: "aviso-legal", label: "Aviso legal" },
+      { slug: "privacidad", label: "Privacidad" },
+      { slug: "cookies", label: "Cookies" },
+    ],
+    whatsappLabel: "Chatear por WhatsApp",
+  },
+  en: {
+    tagline: "Construction, renovation and building maintenance across Cádiz, Málaga and Seville.",
+    servicesHeading: "Services",
+    companyHeading: "Company",
+    contactHeading: "Contact",
+    services: [
+      { slug: "servicios/reformas", label: "Full renovations" },
+      { slug: "servicios/rehabilitacion", label: "Facade rehabilitation" },
+      { slug: "servicios/construccion", label: "Villa construction" },
+      { slug: "servicios/mantenimiento", label: "Maintenance" },
+    ],
+    company: [
+      { slug: "sobre-nosotros", label: "About us" },
+      { slug: "proyectos", label: "Projects" },
+      { slug: "presupuesto", label: "Get a quote" },
+      { slug: "contacto", label: "Contact" },
+    ],
+    legalHeading: "Legal",
+    rightsReserved: "All rights reserved",
+    legalLinks: [
+      { slug: "aviso-legal", label: "Legal notice" },
+      { slug: "privacidad", label: "Privacy" },
+      { slug: "cookies", label: "Cookies" },
+    ],
+    whatsappLabel: "Chat on WhatsApp",
+  },
+  de: {
+    tagline: "Bau, Sanierung und Gebäudeunterhalt in Cádiz, Málaga und Sevilla.",
+    servicesHeading: "Leistungen",
+    companyHeading: "Unternehmen",
+    contactHeading: "Kontakt",
+    services: [
+      { slug: "servicios/reformas", label: "Komplettsanierungen" },
+      { slug: "servicios/rehabilitacion", label: "Fassadensanierung" },
+      { slug: "servicios/construccion", label: "Villenbau" },
+      { slug: "servicios/mantenimiento", label: "Instandhaltung" },
+    ],
+    company: [
+      { slug: "sobre-nosotros", label: "Über uns" },
+      { slug: "proyectos", label: "Projekte" },
+      { slug: "presupuesto", label: "Angebot anfordern" },
+      { slug: "contacto", label: "Kontakt" },
+    ],
+    legalHeading: "Rechtliches",
+    rightsReserved: "Alle Rechte vorbehalten",
+    legalLinks: [
+      { slug: "aviso-legal", label: "Impressum" },
+      { slug: "privacidad", label: "Datenschutz" },
+      { slug: "cookies", label: "Cookies" },
+    ],
+    whatsappLabel: "Per WhatsApp chatten",
+  },
+};
+
+const c = copy[currentLocale];
+const year = new Date().getFullYear();
+const localePath = (slug: string) => `/${currentLocale}/${slug}${slug ? "/" : ""}`;
+
+const whatsappHref = "https://wa.me/34655634800";
+const phoneDisplay = "+34 655 634 800";
+const phoneHref = "tel:+34655634800";
+const emailDisplay = "jlcobano@serintsur.com";
+const emailHref = "mailto:jlcobano@serintsur.com";
+const addressLines = [
+  "Avda. Alcalde Cantos Ropero, 104, Nave 6",
+  "11407 Jerez de la Frontera, Cádiz",
+];
+---
+
+<footer class="bg-navy text-white" aria-labelledby="footer-heading">
+  <h2 id="footer-heading" class="sr-only">Pie de página</h2>
+
+  <Container width="wide" padY="lg">
+    <div class="grid gap-10 md:grid-cols-12 md:gap-8">
+      <!-- Brand column -->
+      <div class="md:col-span-5 lg:col-span-4">
+        <a
+          href={localePath("")}
+          class="inline-flex items-center gap-2 text-white focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-4 rounded-sm"
+          aria-label="Serintsur Multiservicios"
+        >
+          <span class="inline-flex h-10 w-10 items-center justify-center rounded-md bg-white text-navy font-display text-xl font-bold">
+            S
+          </span>
+          <span class="font-display text-xl font-bold tracking-tight">Serintsur</span>
+        </a>
+        <p class="mt-5 max-w-sm text-sm leading-relaxed text-white/70">
+          {c.tagline}
+        </p>
+
+        <!-- Social / contact quick actions -->
+        <div class="mt-6 flex items-center gap-3">
+          <a
+            href={whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={c.whatsappLabel}
+            class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-white/15 text-white/80 transition-all hover:-translate-y-0.5 hover:border-orange hover:bg-orange hover:text-white focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-2"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+            </svg>
+          </a>
+          <a
+            href={emailHref}
+            aria-label={emailDisplay}
+            class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-white/15 text-white/80 transition-all hover:-translate-y-0.5 hover:border-orange hover:bg-orange hover:text-white focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-2"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="5" width="18" height="14" rx="2"/>
+              <path d="m3 7 9 6 9-6"/>
+            </svg>
+          </a>
+          <a
+            href={phoneHref}
+            aria-label={phoneDisplay}
+            class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-white/15 text-white/80 transition-all hover:-translate-y-0.5 hover:border-orange hover:bg-orange hover:text-white focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-2"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Services column -->
+      <div class="md:col-span-3 lg:col-span-2">
+        <h3 class="font-display text-sm font-semibold uppercase tracking-[0.08em] text-orange-light">
+          {c.servicesHeading}
+        </h3>
+        <ul class="mt-4 space-y-3">
+          {
+            c.services.map((item) => (
+              <li>
+                <a
+                  href={localePath(item.slug)}
+                  class="inline-flex text-sm text-white/75 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-2 rounded-sm"
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <!-- Company column -->
+      <div class="md:col-span-4 lg:col-span-2">
+        <h3 class="font-display text-sm font-semibold uppercase tracking-[0.08em] text-orange-light">
+          {c.companyHeading}
+        </h3>
+        <ul class="mt-4 space-y-3">
+          {
+            c.company.map((item) => (
+              <li>
+                <a
+                  href={localePath(item.slug)}
+                  class="inline-flex text-sm text-white/75 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-2 rounded-sm"
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <!-- Contact column -->
+      <div class="md:col-span-12 lg:col-span-4">
+        <h3 class="font-display text-sm font-semibold uppercase tracking-[0.08em] text-orange-light">
+          {c.contactHeading}
+        </h3>
+        <address class="mt-4 not-italic text-sm text-white/75 space-y-1">
+          {addressLines.map((line) => <div>{line}</div>)}
+        </address>
+        <dl class="mt-4 space-y-2 text-sm">
+          <div class="flex items-center gap-2">
+            <dt class="sr-only">Teléfono</dt>
+            <dd>
+              <a href={phoneHref} class="font-tech text-white transition-colors hover:text-orange-light focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-2 rounded-sm">
+                {phoneDisplay}
+              </a>
+            </dd>
+          </div>
+          <div class="flex items-center gap-2">
+            <dt class="sr-only">Email</dt>
+            <dd>
+              <a href={emailHref} class="text-white transition-colors hover:text-orange-light focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-2 rounded-sm">
+                {emailDisplay}
+              </a>
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </Container>
+
+  <!-- Legal bar -->
+  <div class="border-t border-white/10">
+    <Container width="wide">
+      <div class="flex flex-col items-start gap-3 py-5 text-xs text-white/60 md:flex-row md:items-center md:justify-between">
+        <p>
+          © {year} Serintsur Multiservicios S.L. · {c.rightsReserved}
+          <span class="mx-2 hidden text-white/25 md:inline">·</span>
+          <span class="block md:inline">
+            CIF: <span class="font-tech">B11945391</span>
+          </span>
+        </p>
+        <ul class="flex flex-wrap items-center gap-x-5 gap-y-1">
+          {
+            c.legalLinks.map((item) => (
+              <li>
+                <a
+                  href={localePath(item.slug)}
+                  class="transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-2 rounded-sm"
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </Container>
+  </div>
+</footer>

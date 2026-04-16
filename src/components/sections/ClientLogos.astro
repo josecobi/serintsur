@@ -1,0 +1,132 @@
+---
+/*
+  ClientLogos — infinite horizontal marquee.
+  The track contains the logo list twice so a translateX(-50%) animation
+  loops seamlessly. Respects prefers-reduced-motion (pauses).
+  Pauses on hover/focus within for accessibility.
+
+  If a logo has no `src`, the `name` renders as a text wordmark fallback —
+  useful until Jorge delivers SVGs.
+*/
+import Container from "../ui/Container.astro";
+
+export interface ClientLogo {
+  name: string;
+  src?: string;
+  alt?: string;
+  href?: string;
+}
+
+export interface Props {
+  heading?: string;
+  logos: ClientLogo[];
+  speed?: "slow" | "normal" | "fast";
+  class?: string;
+}
+
+const { heading, logos, speed = "normal", class: className = "" } = Astro.props;
+
+const durationMap = {
+  slow: "60s",
+  normal: "40s",
+  fast: "25s",
+};
+
+// Duplicate the list so the -50% translate animation loops seamlessly
+const items = [...logos, ...logos];
+---
+
+<section class:list={["relative overflow-hidden bg-offwhite", className]} aria-label={heading ?? "Clientes y colaboradores"}>
+  <Container width="wide" padY="md">
+    {
+      heading && (
+        <p class="mb-8 text-center font-sans text-xs font-semibold uppercase tracking-[0.12em] text-sand-500">
+          {heading}
+        </p>
+      )
+    }
+
+    <div class="marquee group relative">
+      <!-- Fade edges for elegant entry/exit -->
+      <div class="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-offwhite to-transparent md:w-24" aria-hidden="true"></div>
+      <div class="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-offwhite to-transparent md:w-24" aria-hidden="true"></div>
+
+      <ul
+        class="marquee__track flex w-max items-center gap-12 md:gap-16"
+        style={`--marquee-duration: ${durationMap[speed]}`}
+      >
+        {
+          items.map((logo, i) => (
+            <li class="shrink-0" aria-hidden={i >= logos.length ? "true" : undefined}>
+              {logo.href ? (
+                <a
+                  href={logo.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="block"
+                  aria-label={logo.name}
+                >
+                  {logo.src ? (
+                    <img
+                      src={logo.src}
+                      alt={logo.alt ?? logo.name}
+                      class="h-8 w-auto max-w-[160px] object-contain grayscale opacity-60 transition-all duration-300 hover:grayscale-0 hover:opacity-100 md:h-10"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : (
+                    <span class="font-display text-lg font-bold uppercase tracking-wide text-sand-500 transition-colors hover:text-navy md:text-xl">
+                      {logo.name}
+                    </span>
+                  )}
+                </a>
+              ) : logo.src ? (
+                <img
+                  src={logo.src}
+                  alt={logo.alt ?? logo.name}
+                  class="h-8 w-auto max-w-[160px] object-contain grayscale opacity-60 md:h-10"
+                  loading="lazy"
+                  decoding="async"
+                />
+              ) : (
+                <span class="font-display text-lg font-bold uppercase tracking-wide text-sand-500 md:text-xl">
+                  {logo.name}
+                </span>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </Container>
+</section>
+
+<style>
+  @keyframes marquee-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      /* -50% because the track contains the list twice; one loop = one full list */
+      transform: translateX(-50%);
+    }
+  }
+
+  .marquee__track {
+    animation: marquee-scroll var(--marquee-duration, 40s) linear infinite;
+    will-change: transform;
+  }
+
+  .marquee:hover .marquee__track,
+  .marquee:focus-within .marquee__track {
+    animation-play-state: paused;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee__track {
+      animation: none;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  }
+</style>

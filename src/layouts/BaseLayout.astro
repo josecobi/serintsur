@@ -1,0 +1,104 @@
+---
+import "../styles/global.css";
+
+export interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  canonical?: string;
+  noindex?: boolean;
+  lang?: "es" | "en" | "de";
+  bodyClass?: string;
+}
+
+const {
+  title,
+  description = "Construcción, rehabilitación y mantenimiento de edificios en Cádiz, Málaga y Sevilla. Serintsur Multiservicios.",
+  image = "/og-default.jpg",
+  canonical,
+  noindex = false,
+  lang = "es",
+  bodyClass = "",
+} = Astro.props;
+
+const siteUrl = Astro.site?.toString() ?? "https://serintsur.com";
+const canonicalUrl = canonical ?? new URL(Astro.url.pathname, siteUrl).toString();
+const ogImage = new URL(image, siteUrl).toString();
+const fullTitle = title.includes("Serintsur") ? title : `${title} | Serintsur Multiservicios`;
+---
+
+<!doctype html>
+<html lang={lang} class="h-full scroll-pt-20">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Theme color matches brand navy for mobile browser chrome -->
+    <meta name="theme-color" content="#1e3a5f" />
+    <meta name="color-scheme" content="light" />
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Serintsur Multiservicios" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content={lang === "es" ? "es_ES" : lang === "de" ? "de_DE" : "en_GB"} />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- hreflang alternates -->
+    <link rel="alternate" hreflang="es" href={new URL(Astro.url.pathname.replace(/^\/(en|de)\//, "/es/"), siteUrl).toString()} />
+    <link rel="alternate" hreflang="en" href={new URL(Astro.url.pathname.replace(/^\/(es|de)\//, "/en/"), siteUrl).toString()} />
+    <link rel="alternate" hreflang="de" href={new URL(Astro.url.pathname.replace(/^\/(es|en)\//, "/de/"), siteUrl).toString()} />
+    <link rel="alternate" hreflang="x-default" href={new URL(Astro.url.pathname.replace(/^\/(en|de)\//, "/es/"), siteUrl).toString()} />
+
+    <!-- Fonts: DM Sans (body) + JetBrains Mono (technical) from Google; Clash Display (headings) from Fontshare -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&display=swap"
+    />
+
+    <slot name="head" />
+  </head>
+  <body class:list={["min-h-full bg-white text-sand-700 antialiased", bodyClass]}>
+    <!-- Skip link for keyboard users -->
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-navy focus:px-4 focus:py-2 focus:text-white focus:shadow-lg"
+    >
+      Saltar al contenido
+    </a>
+
+    <slot name="header" />
+
+    <main id="main" class="min-h-[60vh]">
+      <slot />
+    </main>
+
+    <slot name="footer" />
+  </body>
+</html>
