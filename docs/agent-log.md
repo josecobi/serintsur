@@ -623,20 +623,69 @@ import ContactForm from '~/components/contact-form/ContactForm';
 
 ---
 
-## 2026-04-16 CONTENT — Deliverable #7 complete — Chatbot system prompts
+## 2026-04-16 DESIGNER — Pages Wired to Sanity + BaseLayout (Phase 5)
 
-Rewrote and expanded chatbot system prompts in `docs/ai-integrations.md`.
+All seven Spanish pages migrated from the Backend placeholder shells to the
+design-system BaseLayout + my section components. Sanity data-fetching
+frontmatter preserved verbatim; only the `<html>/<head>/<body>` shell and
+inner markup changed. `<Chatbot client:idle>` is now mounted once in
+`BaseLayout.astro` so per-page mounts are gone.
 
-**What changed:**
-- Split into 3 separate prompts: `es`, `en`, `de` (was Spanish-only)
-- Added full project list (all 14 from dossier), complete client roster, all 9 values, working hours, company tagline
-- ES: brand voice rules (short sentences, no corporate fluff, "encargado de obra" tone)
-- EN: expat-specific reassurance framing, Costa del Sol coverage named explicitly (Estepona, Marbella, Mijas, Nerja), emphasis on English-speaking PM and written confirmations
-- DE: Sie form throughout, Zuverlässigkeit/Terminplanung emphasis, German-language support callout
-- All three: consistent lead capture flow, never-invent rule, estimator widget mention, language-switching instruction
+**Files rewritten**:
+- `src/pages/es/index.astro` — Hero → Services → Projects → Stats → Clients → CTA.
+  Wires `siteSettings.stats`, `getActiveServices()`, `getFeaturedProjects(4)`
+  (via `projectsToCardData`), and `getActiveClientLogos()` into real sections.
+  Service icons resolved via slug-tail match (`reformas`, `rehabilitacion`,
+  `construccion`, `mantenimiento`) with a `default` fallback.
+- `src/pages/es/servicios.astro` — Offwhite header band + responsive card grid
+  using the Sanity `heroImage` with first-letter fallback when absent. Friendly
+  empty-state when Sanity returns `[]`.
+- `src/pages/es/servicios/[slug].astro` — Navy hero with `heroImage` overlay,
+  breadcrumb, two-column body (PortableText) + feature list sidebar, related
+  projects grid pulled from `getProjects({ serviceId })`.
+- `src/pages/es/proyectos.astro` — Offwhite header + ProjectFilter island wrapped
+  in `.project-filter-root` for Designer retargeting. Island mount unchanged.
+- `src/pages/es/proyectos/[slug].astro` — Cinematic full-bleed navy hero with
+  `mainImage`, breadcrumb, service + status badges, two-column body + metadata
+  sidecard, bento-style gallery (first image spans 2×2).
+- `src/pages/es/sobre-nosotros.astro` — Navy hero, StatsSection with animated
+  counters, Sanity PortableText body with fallback copy, values grid.
+- `src/pages/es/contacto.astro` — Two-column: ContactForm island (server-rendered
+  placeholder for CSS hooks) on the left, navy contact card + hours + social on
+  the right. Form island wrapper class: `.contact-form-root`.
+- `src/pages/es/presupuesto.astro` — Navy hero with dot pattern, Estimator
+  island in a card wrapped in `.estimator-root`, reassurance grid.
 
-**For Backend Agent:** Implement as `SYSTEM_PROMPT: Record<'es'|'en'|'de', string>` in `/api/chat` edge function, selected by the `language` param in the request body. Full text in `docs/ai-integrations.md` under "System Prompts".
+**UI primitives — strict-mode typing fix**: `Badge`, `Card`, and `Container`
+were hitting `ts(7053)` because destructuring `Astro.props` inferred each
+variable as `any` under Astro's current type setup. Fixed by explicitly
+typing the intermediate: `const props: Props = Astro.props;` then assigning
+narrowed fields. UI maps are now typed as `Record<Variant, string>` so
+indexing is safe. No behavior change.
 
-**All 8 content deliverables now complete.** Content branch is ready for Designer and Backend integration.
+**Verification**:
+- `npx astro check` → 0 errors, 0 warnings, 0 hints.
+- `npx astro build` → all 7 pages built (`/`, `/es/`, `/es/servicios/`,
+  `/es/sobre-nosotros/`, `/es/proyectos/`, `/es/contacto/`, `/es/presupuesto/`).
+  Sanity fetches fail open with `SANITY_PROJECT_ID=placeholder` as expected;
+  pages render with empty-state fallbacks.
 
----
+**Still placeholder (needs Jorge's content or final assets)**:
+- Hero imagery: pages currently use the radial navy-gradient fallback because
+  no hero image comes through `siteSettings`. When a dedicated hero image
+  field is added (or the homepage hero is mapped to a specific project's
+  `mainImage`), drop it into `<HeroSection image={...} />`.
+- Company logo: Header/Footer still use the placeholder "S" square mark.
+  Swap in the SVG once Jorge sends it.
+- About page body: if empty in Sanity, falls back to `t.site.descriptionShort`
+  + a short Spanish paragraph. Remove the fallback once the real copy lands.
+
+**Handoff to downstream work**:
+- Content Agent: Sanity is load-bearing — populate `siteSettings` (stats,
+  tagline, contact), services (4 core + icon key matching the slug tail),
+  featured projects (3–4 with `featured=true`), and client logos.
+- SEO Agent: all pages use BaseLayout which emits hreflang + og tags; just
+  need structured data (JSON-LD) layered on top.
+- i18n: only `/es/*` routes exist. `/en/*` and `/de/*` duplicates can copy the
+  page structure verbatim and swap `const locale = 'es'` for the target.
+

@@ -1,16 +1,19 @@
 ---
-// About page (Spanish).
-//
-// Data comes from two Sanity documents:
-//   - `siteSettings` → company stats (projectsCompleted, yearsExperience, etc.)
-//   - `page` with slug "sobre-nosotros" → long-form body content
-// Either can be missing without breaking the page.
+/*
+  About page (Spanish).
 
-import Chatbot from '~/components/chatbot/Chatbot';
+  Designer pass: two data sources from Sanity, both optional — stats from
+  `siteSettings` and long-form body from the `page` doc with slug "sobre-nosotros".
+  Values/narrative copy fall back to the descriptionShort from i18n.
+*/
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Container from '~/components/ui/Container.astro';
+import SectionHeading from '~/components/ui/SectionHeading.astro';
+import StatsSection, { type Stat } from '~/components/sections/StatsSection.astro';
+import CtaBanner from '~/components/sections/CtaBanner.astro';
 import { getStrings } from '~/lib/i18n';
 import { renderPortableText } from '~/lib/portable-text';
 import { getPageBySlug, getSiteSettings, pickLocale } from '~/lib/sanity';
-import '~/styles/global.css';
 
 const locale = 'es';
 const t = getStrings(locale);
@@ -33,65 +36,136 @@ const stats = siteSettings?.stats;
 const metaTitle = pickLocale(page?.seo?.metaTitle, locale) ?? title;
 const metaDescription =
   pickLocale(page?.seo?.metaDescription, locale) ?? t.site.descriptionShort;
+
+const statsForBand: Stat[] = [];
+if (stats) {
+  if (stats.projectsCompleted !== undefined) {
+    statsForBand.push({
+      value: stats.projectsCompleted,
+      suffix: '+',
+      label: 'Proyectos completados',
+    });
+  }
+  if (stats.yearsExperience !== undefined) {
+    statsForBand.push({ value: stats.yearsExperience, label: 'Años de experiencia' });
+  }
+  if (stats.teamSize !== undefined) {
+    statsForBand.push({ value: stats.teamSize, label: 'Profesionales' });
+  }
+  if (stats.citiesCovered !== undefined) {
+    statsForBand.push({ value: stats.citiesCovered, label: 'Provincias' });
+  }
+}
+
+const values = [
+  {
+    title: 'Oficio y rigor',
+    text: 'Cada obra la ejecutamos como si fuera nuestra. Planos, plazos y calidades; sin sorpresas al final.',
+  },
+  {
+    title: 'Equipo propio',
+    text: 'Más de 30 profesionales en plantilla: albañilería, instalaciones, acabados y jefatura de obra. Respondemos nosotros.',
+  },
+  {
+    title: 'Transparencia',
+    text: 'Presupuestos desglosados, partidas claras y comunicación constante con el cliente. Sin letra pequeña.',
+  },
+  {
+    title: 'Cerca de casa',
+    text: 'Operamos en Cádiz, Málaga y Sevilla. Obra a menos de dos horas, visitas técnicas rápidas y una post-obra accesible.',
+  },
+];
 ---
 
-<!doctype html>
-<html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{metaTitle} — {t.site.name}</title>
-    <meta name="description" content={metaDescription} />
-    {page?.seo?.noIndex && <meta name="robots" content="noindex" />}
-  </head>
-  <body class="bg-white min-h-screen">
-    <main class="about-root">
-      <header class="about-hero max-w-3xl mx-auto px-4 py-8">
-        <h1 class="about-title text-3xl sm:text-4xl font-semibold">{title}</h1>
-      </header>
+<BaseLayout
+  title={`${metaTitle} — ${t.site.name}`}
+  description={metaDescription}
+  noindex={page?.seo?.noIndex}
+  lang={locale}
+>
+  <!-- Hero -->
+  <section class="bg-navy text-white">
+    <Container width="wide" padY="xl">
+      <div class="max-w-3xl py-10 md:py-16">
+        <div class="mb-5 flex items-center gap-3">
+          <span class="h-[3px] w-10 rounded-sm bg-orange" aria-hidden="true" />
+          <span class="font-sans text-xs font-semibold uppercase tracking-[0.1em] text-orange-light">
+            Desde 2018
+          </span>
+        </div>
+        <h1 class="font-display text-display font-bold text-white">{title}</h1>
+        <p class="mt-6 max-w-2xl text-lg leading-relaxed text-white/85 md:text-xl">
+          Una empresa familiar de Jerez de la Frontera que crece construyendo, rehabilitando y
+          cuidando los edificios de Cádiz, Málaga y Sevilla.
+        </p>
+      </div>
+    </Container>
+  </section>
 
-      {stats && (
-        <section class="about-stats max-w-3xl mx-auto px-4 py-6 border-t border-gray-200">
-          <dl class="about-stats-grid grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-            {stats.projectsCompleted !== undefined && (
-              <div class="about-stat">
-                <dt class="text-sm text-gray-600">Proyectos</dt>
-                <dd class="text-2xl font-semibold">{stats.projectsCompleted}</dd>
-              </div>
-            )}
-            {stats.yearsExperience !== undefined && (
-              <div class="about-stat">
-                <dt class="text-sm text-gray-600">Años</dt>
-                <dd class="text-2xl font-semibold">{stats.yearsExperience}</dd>
-              </div>
-            )}
-            {stats.teamSize !== undefined && (
-              <div class="about-stat">
-                <dt class="text-sm text-gray-600">Equipo</dt>
-                <dd class="text-2xl font-semibold">{stats.teamSize}</dd>
-              </div>
-            )}
-            {stats.citiesCovered !== undefined && (
-              <div class="about-stat">
-                <dt class="text-sm text-gray-600">Ciudades</dt>
-                <dd class="text-2xl font-semibold">{stats.citiesCovered}</dd>
-              </div>
-            )}
-          </dl>
-        </section>
-      )}
+  {statsForBand.length > 0 && (
+    <StatsSection
+      heading={{
+        eyebrow: 'Cifras',
+        title: 'Trayectoria que respalda cada obra',
+      }}
+      stats={statsForBand}
+    />
+  )}
 
+  <!-- Body (from Sanity) -->
+  <section class="bg-white">
+    <Container width="narrow" padY="lg">
       {bodyHtml ? (
-        <section
-          class="about-body prose prose-sm sm:prose max-w-3xl mx-auto px-4 py-8"
+        <div
+          class="prose max-w-none prose-headings:font-display prose-headings:text-navy prose-a:text-orange prose-a:no-underline prose-a:font-semibold hover:prose-a:underline prose-strong:text-navy prose-img:rounded-lg"
           set:html={bodyHtml}
         />
       ) : (
-        <section class="about-body max-w-3xl mx-auto px-4 py-8">
-          <p class="text-gray-500">{t.site.descriptionShort}</p>
-        </section>
+        <div class="max-w-2xl text-lg leading-relaxed text-sand-900">
+          <p>{t.site.descriptionShort}</p>
+          <p class="mt-5">
+            Desde nuestra sede en Jerez de la Frontera coordinamos obras para administraciones,
+            bodegas, hoteles, promotores y particulares. Construcción nueva, rehabilitación de
+            fachadas, reformas integrales y mantenimiento de edificios — siempre con equipo propio.
+          </p>
+        </div>
       )}
-    </main>
-    <Chatbot client:idle language={locale} />
-  </body>
-</html>
+    </Container>
+  </section>
+
+  <!-- Values -->
+  <section class="bg-offwhite">
+    <Container width="wide" padY="lg">
+      <div class="mb-12">
+        <SectionHeading
+          eyebrow="Valores"
+          title="Cómo trabajamos"
+          subtitle="Cuatro principios que aplicamos desde la primera visita hasta la entrega de llaves."
+        />
+      </div>
+      <ul class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {values.map((v) => (
+          <li class="group rounded-lg border border-sand-200 bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-navy hover:shadow-md">
+            <h3 class="font-display text-lg font-semibold text-navy">
+              <span class="mr-2 text-orange">·</span>{v.title}
+            </h3>
+            <p class="mt-3 text-sm leading-relaxed text-sand-700">{v.text}</p>
+          </li>
+        ))}
+      </ul>
+    </Container>
+  </section>
+
+  <CtaBanner
+    eyebrow="Hablemos"
+    title="¿Empezamos tu proyecto?"
+    subtitle="Sin compromiso. Te escuchamos, visitamos la obra y te pasamos una propuesta clara."
+    primaryCta={{ label: t.common.requestQuote, href: `/${locale}/presupuesto/` }}
+    secondaryCta={{
+      label: t.common.chatWhatsApp,
+      href: 'https://wa.me/34655634800',
+      variant: 'whatsapp',
+    }}
+    variant="band"
+  />
+</BaseLayout>

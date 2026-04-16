@@ -1,0 +1,78 @@
+---
+/*
+  LanguageSwitcher — inline ES / EN / DE toggle.
+  Active locale is styled with orange underline; others are sand-500 with hover to navy.
+  TODO(backend): swapLocale belongs in src/lib/i18n.ts once the util file exists.
+*/
+type Locale = "es" | "en" | "de";
+
+export interface Props {
+  currentLocale?: Locale;
+  tone?: "light" | "dark"; // dark = for navy surfaces (mobile menu, footer)
+  class?: string;
+}
+
+const { currentLocale, tone = "light", class: className = "" } = Astro.props;
+
+const pathname = Astro.url.pathname;
+const activeLocale: Locale =
+  currentLocale ??
+  (pathname.match(/^\/(es|en|de)(\/|$)/)?.[1] as Locale | undefined) ??
+  "es";
+
+function swapLocale(path: string, target: Locale): string {
+  const trailing = path.endsWith("/") && path !== "/";
+  const segments = path.split("/").filter(Boolean);
+  if (segments[0] && ["es", "en", "de"].includes(segments[0])) {
+    segments[0] = target;
+  } else {
+    segments.unshift(target);
+  }
+  return "/" + segments.join("/") + (trailing ? "/" : "");
+}
+
+const locales: { code: Locale; label: string; ariaLabel: string }[] = [
+  { code: "es", label: "ES", ariaLabel: "Español" },
+  { code: "en", label: "EN", ariaLabel: "English" },
+  { code: "de", label: "DE", ariaLabel: "Deutsch" },
+];
+
+const baseColor = tone === "dark" ? "text-white/60" : "text-sand-500";
+const hoverColor = tone === "dark" ? "hover:text-white" : "hover:text-navy";
+const activeColor = tone === "dark" ? "text-white" : "text-navy";
+---
+
+<div
+  class:list={["inline-flex items-center gap-0.5 font-sans text-xs font-semibold tracking-[0.08em]", className]}
+  role="group"
+  aria-label="Cambiar idioma"
+>
+  {
+    locales.map((locale, i) => {
+      const isActive = locale.code === activeLocale;
+      return (
+        <>
+          {i > 0 && (
+            <span class:list={["select-none", tone === "dark" ? "text-white/25" : "text-sand-300"]} aria-hidden="true">
+              /
+            </span>
+          )}
+          <a
+            href={swapLocale(pathname, locale.code)}
+            hreflang={locale.code}
+            lang={locale.code}
+            aria-label={locale.ariaLabel}
+            aria-current={isActive ? "true" : undefined}
+            class:list={[
+              "relative px-1.5 py-1 transition-colors duration-200",
+              isActive ? activeColor : `${baseColor} ${hoverColor}`,
+              isActive && "after:absolute after:bottom-0 after:left-1.5 after:right-1.5 after:h-[2px] after:bg-orange after:rounded-sm",
+            ]}
+          >
+            {locale.label}
+          </a>
+        </>
+      );
+    })
+  }
+</div>

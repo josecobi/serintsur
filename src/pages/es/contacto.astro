@@ -1,16 +1,20 @@
 ---
-// Contact page (Spanish).
-//
-// Renders contact info from `siteSettings` (phone, email, address, WhatsApp,
-// social links) and mounts the ContactForm island, which posts to /api/contact.
-// Backend-owned data wiring; Designer replaces the visual shell.
+/*
+  Contact page (Spanish).
 
+  Designer pass: wraps the ContactForm island in BaseLayout with a two-column
+  layout: form on the left, contact card + WhatsApp + hours + social on the
+  right. The island mount stays untouched; Designer can style it later via
+  `.contact-form-*` retargeting in global.css.
+*/
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Container from '~/components/ui/Container.astro';
+import SectionHeading from '~/components/ui/SectionHeading.astro';
+import Button from '~/components/ui/Button.astro';
 import ContactForm from '~/components/contact-form/ContactForm';
-import Chatbot from '~/components/chatbot/Chatbot';
 import { getStrings } from '~/lib/i18n';
 import { getSiteSettings, pickLocale } from '~/lib/sanity';
 import { WHATSAPP_NUMBER, buildWhatsAppLink } from '~/lib/whatsapp';
-import '~/styles/global.css';
 
 const locale = 'es';
 const t = getStrings(locale);
@@ -21,8 +25,10 @@ const siteSettings = await getSiteSettings().catch((e) => {
 });
 
 const phone = siteSettings?.phone ?? '+34 655 634 800';
-const email = siteSettings?.email ?? 'info@serintsur.com';
-const address = siteSettings?.address;
+const email = siteSettings?.email ?? 'jlcobano@serintsur.com';
+const address =
+  siteSettings?.address ??
+  'Avda. Alcalde Cantos Ropero, 104, Nave 6\n11407 Jerez de la Frontera, Cádiz';
 const whatsappNumber = siteSettings?.whatsappNumber ?? WHATSAPP_NUMBER;
 const whatsappUrl = buildWhatsAppLink(
   'Hola, me gustaría más información.',
@@ -32,78 +38,155 @@ const tagline = pickLocale(siteSettings?.tagline, locale) ?? t.site.tagline;
 const social = siteSettings?.socialLinks;
 ---
 
-<!doctype html>
-<html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{t.nav.contact} — {t.site.name}</title>
-    <meta name="description" content={t.contact.subheading} />
-  </head>
-  <body class="bg-white min-h-screen">
-    <main class="contact-root">
-      <header class="contact-hero max-w-5xl mx-auto px-4 py-8">
-        <h1 class="contact-title text-3xl sm:text-4xl font-semibold">{t.contact.heading}</h1>
-        <p class="contact-subheading mt-3 text-lg text-gray-700">{t.contact.subheading}</p>
-      </header>
+<BaseLayout
+  title={`${t.nav.contact} — ${t.site.name}`}
+  description={t.contact.subheading}
+  lang={locale}
+>
+  <!-- Header band -->
+  <section class="bg-offwhite">
+    <Container width="wide" padY="lg">
+      <SectionHeading
+        eyebrow={t.nav.contact}
+        title={t.contact.heading}
+        subtitle={t.contact.subheading}
+        level="h1"
+      />
+    </Container>
+  </section>
 
-      <div class="contact-main max-w-5xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
-        <section class="contact-form-wrapper">
-          <ContactForm client:load language={locale} source="contact" />
-        </section>
+  <section class="bg-white">
+    <Container width="wide" padY="lg">
+      <div class="grid gap-10 lg:grid-cols-12 lg:gap-16">
+        <!-- Form column -->
+        <div class="contact-form-root lg:col-span-7">
+          <div class="rounded-xl border border-sand-200 bg-white p-6 shadow-sm md:p-10">
+            <ContactForm client:load language={locale} source="contact" />
+          </div>
+        </div>
 
-        <aside class="contact-info border border-gray-200 rounded-lg p-4 text-sm self-start">
-          <p class="text-gray-700 mb-4">{tagline}</p>
-          <dl class="space-y-3">
-            <div>
-              <dt class="text-gray-500">{t.footer.phone}</dt>
-              <dd class="font-medium">
-                <a href={`tel:${phone.replace(/\s+/g, '')}`} class="underline">{phone}</a>
-              </dd>
+        <!-- Info column -->
+        <aside class="space-y-6 lg:col-span-5">
+          <!-- Primary contact card -->
+          <div class="rounded-xl bg-navy p-8 text-white">
+            <h2 class="font-display text-sm font-semibold uppercase tracking-[0.08em] text-orange-light">
+              Contacto directo
+            </h2>
+            <p class="mt-3 text-white/80">{tagline}</p>
+
+            <dl class="mt-6 space-y-5 text-sm">
+              <div class="flex items-start gap-3">
+                <span class="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-white/10 text-orange-light">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                  </svg>
+                </span>
+                <div>
+                  <dt class="text-xs uppercase tracking-wide text-white/50">{t.footer.phone}</dt>
+                  <dd class="mt-0.5">
+                    <a href={`tel:${phone.replace(/\s+/g, '')}`} class="font-tech text-base text-white hover:text-orange-light focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-2 rounded-sm">
+                      {phone}
+                    </a>
+                  </dd>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3">
+                <span class="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-white/10 text-orange-light">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="5" width="18" height="14" rx="2"/>
+                    <path d="m3 7 9 6 9-6"/>
+                  </svg>
+                </span>
+                <div>
+                  <dt class="text-xs uppercase tracking-wide text-white/50">{t.footer.email}</dt>
+                  <dd class="mt-0.5">
+                    <a href={`mailto:${email}`} class="text-white hover:text-orange-light focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-2 rounded-sm">
+                      {email}
+                    </a>
+                  </dd>
+                </div>
+              </div>
+
+              {address && (
+                <div class="flex items-start gap-3">
+                  <span class="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-white/10 text-orange-light">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                      <circle cx="12" cy="10" r="3"/>
+                    </svg>
+                  </span>
+                  <div>
+                    <dt class="text-xs uppercase tracking-wide text-white/50">{t.footer.address}</dt>
+                    <dd class="mt-0.5 whitespace-pre-line text-white">{address}</dd>
+                  </div>
+                </div>
+              )}
+            </dl>
+
+            <div class="mt-8">
+              <Button variant="whatsapp" size="lg" href={whatsappUrl} target="_blank" class="w-full justify-center">
+                {t.common.chatWhatsApp}
+              </Button>
             </div>
-            <div>
-              <dt class="text-gray-500">{t.footer.email}</dt>
-              <dd class="font-medium">
-                <a href={`mailto:${email}`} class="underline">{email}</a>
-              </dd>
-            </div>
-            {address && (
-              <div>
-                <dt class="text-gray-500">{t.footer.address}</dt>
-                <dd class="font-medium">{address}</dd>
+          </div>
+
+          <!-- Hours + social -->
+          <div class="rounded-xl border border-sand-200 bg-offwhite p-6">
+            <h3 class="font-display text-sm font-semibold uppercase tracking-[0.08em] text-orange">
+              {t.footer.hours}
+            </h3>
+            <dl class="mt-4 space-y-1 text-sm text-sand-900">
+              <div class="flex justify-between">
+                <dt>Lunes a viernes</dt>
+                <dd class="font-tech">08:00 – 18:00</dd>
+              </div>
+              <div class="flex justify-between text-sand-500">
+                <dt>Sábados y domingos</dt>
+                <dd>Cerrado</dd>
+              </div>
+            </dl>
+
+            {social && (social.instagram || social.facebook || social.linkedin || social.google) && (
+              <div class="mt-6 border-t border-sand-200 pt-6">
+                <h3 class="font-display text-sm font-semibold uppercase tracking-[0.08em] text-orange">
+                  {t.footer.followUs}
+                </h3>
+                <ul class="mt-4 flex flex-wrap gap-3">
+                  {social.instagram && (
+                    <li>
+                      <a href={social.instagram} target="_blank" rel="noopener noreferrer" class="inline-flex items-center rounded-md border border-sand-200 bg-white px-3 py-1.5 text-xs font-medium text-navy transition-colors hover:border-navy focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-2">
+                        Instagram
+                      </a>
+                    </li>
+                  )}
+                  {social.facebook && (
+                    <li>
+                      <a href={social.facebook} target="_blank" rel="noopener noreferrer" class="inline-flex items-center rounded-md border border-sand-200 bg-white px-3 py-1.5 text-xs font-medium text-navy transition-colors hover:border-navy focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-2">
+                        Facebook
+                      </a>
+                    </li>
+                  )}
+                  {social.linkedin && (
+                    <li>
+                      <a href={social.linkedin} target="_blank" rel="noopener noreferrer" class="inline-flex items-center rounded-md border border-sand-200 bg-white px-3 py-1.5 text-xs font-medium text-navy transition-colors hover:border-navy focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-2">
+                        LinkedIn
+                      </a>
+                    </li>
+                  )}
+                  {social.google && (
+                    <li>
+                      <a href={social.google} target="_blank" rel="noopener noreferrer" class="inline-flex items-center rounded-md border border-sand-200 bg-white px-3 py-1.5 text-xs font-medium text-navy transition-colors hover:border-navy focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-2">
+                        Google
+                      </a>
+                    </li>
+                  )}
+                </ul>
               </div>
             )}
-            <div>
-              <dt class="text-gray-500">WhatsApp</dt>
-              <dd class="font-medium">
-                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" class="underline">
-                  {t.common.chatWhatsApp}
-                </a>
-              </dd>
-            </div>
-          </dl>
-          {social && (social.instagram || social.facebook || social.linkedin || social.google) && (
-            <div class="contact-social mt-4 pt-4 border-t border-gray-200">
-              <div class="text-gray-500 mb-1">{t.footer.followUs}</div>
-              <ul class="flex gap-3 text-sm">
-                {social.instagram && (
-                  <li><a href={social.instagram} target="_blank" rel="noopener noreferrer" class="underline">Instagram</a></li>
-                )}
-                {social.facebook && (
-                  <li><a href={social.facebook} target="_blank" rel="noopener noreferrer" class="underline">Facebook</a></li>
-                )}
-                {social.linkedin && (
-                  <li><a href={social.linkedin} target="_blank" rel="noopener noreferrer" class="underline">LinkedIn</a></li>
-                )}
-                {social.google && (
-                  <li><a href={social.google} target="_blank" rel="noopener noreferrer" class="underline">Google</a></li>
-                )}
-              </ul>
-            </div>
-          )}
+          </div>
         </aside>
       </div>
-    </main>
-    <Chatbot client:idle language={locale} />
-  </body>
-</html>
+    </Container>
+  </section>
+</BaseLayout>

@@ -1,0 +1,147 @@
+---
+/*
+  ProjectsShowcase — bento-style grid of featured projects.
+  Layout:
+    mobile: 1 column stack
+    tablet: 2 columns
+    desktop: 3-col × 2-row bento — first project spans 2×2, next two are 1×1
+  Works with 3 projects. If more are passed, extras render at 1×1 below.
+*/
+import Container from "../ui/Container.astro";
+import SectionHeading from "../ui/SectionHeading.astro";
+import Badge from "../ui/Badge.astro";
+
+export interface FeaturedProject {
+  title: string;
+  category: string;
+  location: string;
+  year?: string;
+  imageSrc: string;
+  imageAlt: string;
+  href: string;
+}
+
+export interface Props {
+  heading: { eyebrow?: string; title: string; subtitle?: string };
+  projects: FeaturedProject[];
+  viewAll?: { label: string; href: string };
+  background?: "white" | "offwhite";
+  class?: string;
+}
+
+const {
+  heading,
+  projects,
+  viewAll,
+  background = "white",
+  class: className = "",
+} = Astro.props;
+
+const bgClass = background === "white" ? "bg-white" : "bg-offwhite";
+---
+
+<section class:list={["relative", bgClass, className]} aria-labelledby="projects-heading">
+  <Container width="wide" padY="lg">
+    <div class="mb-12 flex flex-col gap-6 md:mb-16 md:flex-row md:items-end md:justify-between">
+      <SectionHeading
+        eyebrow={heading.eyebrow}
+        title={heading.title}
+        subtitle={heading.subtitle}
+      >
+        <span id="projects-heading" class="sr-only">{heading.title}</span>
+      </SectionHeading>
+      {
+        viewAll && (
+          <a
+            href={viewAll.href}
+            class="group inline-flex items-center gap-2 self-start rounded-sm font-sans text-sm font-semibold text-navy transition-colors hover:text-orange focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-2 md:self-auto"
+          >
+            {viewAll.label}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="transition-transform duration-200 group-hover:translate-x-1">
+              <path d="M5 12h14"/>
+              <path d="m12 5 7 7-7 7"/>
+            </svg>
+          </a>
+        )
+      }
+    </div>
+
+    <ul class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2 lg:auto-rows-[1fr]">
+      {
+        projects.map((project, i) => {
+          const isFeatured = i === 0;
+          const spanClass = isFeatured
+            ? "sm:col-span-2 lg:col-span-2 lg:row-span-2"
+            : "";
+          return (
+            <li class:list={["group relative", spanClass]}>
+              <a
+                href={project.href}
+                class="block h-full overflow-hidden rounded-lg bg-navy focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-4"
+                aria-label={`${project.title}, ${project.location}`}
+              >
+                <div
+                  class:list={[
+                    "relative w-full overflow-hidden",
+                    isFeatured
+                      ? "aspect-[4/3] lg:aspect-auto lg:h-full"
+                      : "aspect-[4/3]",
+                  ]}
+                >
+                  <img
+                    src={project.imageSrc}
+                    alt={project.imageAlt}
+                    loading="lazy"
+                    decoding="async"
+                    class="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+                  />
+                  <!-- Navy gradient overlay for text contrast -->
+                  <div class="absolute inset-0 bg-gradient-to-t from-navy-dark/85 via-navy/30 to-transparent" aria-hidden="true"></div>
+
+                  <!-- Category badge -->
+                  <div class="absolute left-4 top-4">
+                    <Badge variant="navy" size="sm">{project.category}</Badge>
+                  </div>
+
+                  <!-- Card content -->
+                  <div class="absolute inset-x-0 bottom-0 p-5 md:p-6">
+                    <h3 class:list={[
+                      "font-display font-bold text-white",
+                      isFeatured ? "text-2xl md:text-3xl" : "text-lg md:text-xl",
+                    ]}>
+                      {project.title}
+                    </h3>
+                    <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-white/75">
+                      <span class="inline-flex items-center gap-1.5">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                          <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                        {project.location}
+                      </span>
+                      {
+                        project.year && (
+                          <span class="font-tech">{project.year}</span>
+                        )
+                      }
+                    </div>
+                  </div>
+
+                  <!-- Hover CTA reveal -->
+                  <div class="absolute right-5 top-5 translate-x-2 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100 md:right-6 md:top-6">
+                    <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-orange text-white">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M7 17 17 7"/>
+                        <path d="M7 7h10v10"/>
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </Container>
+</section>

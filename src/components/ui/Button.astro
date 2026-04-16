@@ -1,0 +1,123 @@
+---
+/*
+  Button — renders as <a> when href is passed, otherwise <button>.
+  Variants follow the brand rule: orange = CTA energy, navy = solid authority,
+  outline = secondary action on light surfaces, ghost = tertiary / nav actions.
+*/
+export interface Props {
+  variant?: "primary" | "secondary" | "outline" | "ghost" | "whatsapp";
+  size?: "sm" | "md" | "lg";
+  href?: string;
+  type?: "button" | "submit" | "reset";
+  fullWidth?: boolean;
+  disabled?: boolean;
+  target?: "_blank" | "_self";
+  rel?: string;
+  ariaLabel?: string;
+  class?: string;
+  id?: string;
+}
+
+const {
+  variant = "primary",
+  size = "md",
+  href,
+  type = "button",
+  fullWidth = false,
+  disabled = false,
+  target,
+  rel,
+  ariaLabel,
+  class: className = "",
+  id,
+} = Astro.props;
+
+const base = [
+  "inline-flex items-center justify-center gap-2",
+  "font-sans font-semibold",
+  "rounded-md",
+  "transition-all duration-200 ease-out",
+  "focus-visible:outline-2 focus-visible:outline-offset-2",
+  "disabled:pointer-events-none disabled:opacity-50",
+  "select-none whitespace-nowrap",
+].join(" ");
+
+const sizeMap = {
+  sm: "h-9 px-4 text-sm",
+  md: "h-11 px-5 text-[0.9375rem]",
+  lg: "h-14 px-7 text-base",
+};
+
+const variantMap = {
+  primary: [
+    "bg-orange text-white",
+    "hover:bg-orange-dark hover:-translate-y-0.5 hover:shadow-md",
+    "active:translate-y-0 active:shadow-sm",
+    "focus-visible:outline-orange",
+  ].join(" "),
+  secondary: [
+    "bg-navy text-white",
+    "hover:bg-navy-dark hover:-translate-y-0.5 hover:shadow-md",
+    "active:translate-y-0 active:shadow-sm",
+    "focus-visible:outline-navy",
+  ].join(" "),
+  outline: [
+    "bg-transparent text-navy",
+    "border-2 border-navy",
+    "hover:bg-navy hover:text-white",
+    "focus-visible:outline-navy",
+  ].join(" "),
+  ghost: [
+    "bg-transparent text-navy",
+    "hover:bg-sand-100",
+    "focus-visible:outline-navy",
+  ].join(" "),
+  whatsapp: [
+    "bg-[#25D366] text-white",
+    "hover:bg-[#1fb855] hover:-translate-y-0.5 hover:shadow-md",
+    "active:translate-y-0 active:shadow-sm",
+    "focus-visible:outline-[#25D366]",
+  ].join(" "),
+};
+
+const classes = [
+  base,
+  sizeMap[size],
+  variantMap[variant],
+  fullWidth ? "w-full" : "",
+  className,
+];
+
+const isLink = !!href;
+const externalRel = target === "_blank" ? (rel ?? "noopener noreferrer") : rel;
+---
+
+{
+  isLink ? (
+    <a
+      href={href}
+      target={target}
+      rel={externalRel}
+      aria-label={ariaLabel}
+      aria-disabled={disabled ? "true" : undefined}
+      class:list={classes}
+      id={id}
+    >
+      <slot name="icon-left" />
+      <slot />
+      <slot name="icon-right" />
+    </a>
+  ) : (
+    <button
+      type={type}
+      disabled={disabled}
+      aria-label={ariaLabel}
+      class:list={classes}
+      id={id}
+    >
+      <slot name="icon-left" />
+      <slot />
+      <slot name="icon-right" />
+    </button>
+  )
+}

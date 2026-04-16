@@ -1,34 +1,130 @@
 ---
-// Quote estimator page (Spanish).
-//
-// Backend-owned placeholder: mounts the Estimator React island so the flow is
-// reachable end-to-end. The Designer replaces the HTML shell / adds hero +
-// surrounding page chrome; the `<Estimator />` mount should survive the
-// redesign as-is.
-import Chatbot from '~/components/chatbot/Chatbot';
+/*
+  Quote estimator page (Spanish).
+
+  Designer pass: wraps Backend's Estimator island in BaseLayout + a hero +
+  reassurance band. The `<Estimator />` mount stays untouched; its internal
+  React styling is retargeted from global.css (`.estimator-*`) if needed.
+*/
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Container from '~/components/ui/Container.astro';
 import Estimator from '~/components/estimator/Estimator';
 import { getStrings } from '~/lib/i18n';
-import '~/styles/global.css';
 
-const t = getStrings('es');
+const locale = 'es';
+const t = getStrings(locale);
+
+const reassurances = [
+  {
+    title: 'Gratis y sin compromiso',
+    text: 'Responde 5 preguntas y recibe una estimación orientativa al instante.',
+    icon: 'spark',
+  },
+  {
+    title: 'Basado en obra real',
+    text: 'La horquilla sale del histórico de obras que hemos ejecutado en Cádiz, Málaga y Sevilla.',
+    icon: 'check',
+  },
+  {
+    title: 'Visita técnica rápida',
+    text: 'Si quieres un presupuesto cerrado, pasamos a verlo en menos de 5 días.',
+    icon: 'calendar',
+  },
+];
 ---
 
-<!doctype html>
-<html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{t.estimator.heading} — Serintsur</title>
-    <meta name="description" content={t.estimator.subheading} />
-  </head>
-  <body class="bg-gray-100 min-h-screen">
-    <main class="py-8">
-      <header class="max-w-2xl mx-auto px-4 mb-6 text-center">
-        <h1 class="text-3xl sm:text-4xl font-semibold">{t.estimator.heading}</h1>
-        <p class="mt-2 text-gray-600">{t.estimator.subheading}</p>
-      </header>
-      <Estimator client:load language="es" />
-    </main>
-    <Chatbot client:idle language="es" />
-  </body>
-</html>
+<BaseLayout
+  title={`${t.estimator.heading} — ${t.site.name}`}
+  description={t.estimator.subheading}
+  lang={locale}
+>
+  <!-- Hero band -->
+  <section class="relative isolate overflow-hidden bg-navy text-white">
+    <div class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_20%,theme(colors.navy-light)_0%,theme(colors.navy)_55%,theme(colors.navy-dark)_100%)]" aria-hidden="true"></div>
+    <div class="pointer-events-none absolute inset-0 -z-10 opacity-[0.04]" aria-hidden="true">
+      <svg width="100%" height="100%">
+        <defs>
+          <pattern id="estimator-dots" x="0" y="0" width="28" height="28" patternUnits="userSpaceOnUse">
+            <circle cx="2" cy="2" r="1" fill="currentColor"/>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#estimator-dots)" class="text-white"/>
+      </svg>
+    </div>
+
+    <Container width="wide" padY="xl">
+      <div class="mx-auto max-w-3xl py-8 text-center md:py-12">
+        <div class="mb-5 flex items-center justify-center gap-3">
+          <span class="h-[3px] w-10 rounded-sm bg-orange" aria-hidden="true" />
+          <span class="font-sans text-xs font-semibold uppercase tracking-[0.1em] text-orange-light">
+            {t.nav.estimator}
+          </span>
+          <span class="h-[3px] w-10 rounded-sm bg-orange" aria-hidden="true" />
+        </div>
+        <h1 class="font-display text-display font-bold text-white">
+          {t.estimator.heading}
+        </h1>
+        <p class="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-white/80 md:text-xl">
+          {t.estimator.subheading}
+        </p>
+      </div>
+    </Container>
+  </section>
+
+  <!-- Estimator widget -->
+  <section class="estimator-root bg-offwhite">
+    <Container width="narrow" padY="lg">
+      <div class="mx-auto max-w-3xl">
+        <div class="rounded-xl border border-sand-200 bg-white p-6 shadow-md md:p-10">
+          <Estimator client:load language={locale} />
+        </div>
+        <p class="mt-4 text-center text-xs text-sand-500">
+          {t.estimator.result.disclaimer}
+        </p>
+      </div>
+    </Container>
+  </section>
+
+  <!-- Reassurances -->
+  <section class="bg-white">
+    <Container width="wide" padY="lg">
+      <ul class="grid grid-cols-1 gap-6 md:grid-cols-3">
+        {reassurances.map((r) => (
+          <li class="flex items-start gap-4 rounded-lg border border-sand-200 bg-white p-6">
+            <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-navy text-white">
+              {r.icon === 'spark' && (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 3v3"/>
+                  <path d="M12 18v3"/>
+                  <path d="M5.22 5.22l2.12 2.12"/>
+                  <path d="M16.66 16.66l2.12 2.12"/>
+                  <path d="M3 12h3"/>
+                  <path d="M18 12h3"/>
+                  <path d="M5.22 18.78l2.12-2.12"/>
+                  <path d="M16.66 7.34l2.12-2.12"/>
+                </svg>
+              )}
+              {r.icon === 'check' && (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M20 6 9 17l-5-5"/>
+                </svg>
+              )}
+              {r.icon === 'calendar' && (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="4" width="18" height="18" rx="2"/>
+                  <path d="M16 2v4"/>
+                  <path d="M8 2v4"/>
+                  <path d="M3 10h18"/>
+                </svg>
+              )}
+            </span>
+            <div>
+              <h2 class="font-display text-base font-semibold text-navy">{r.title}</h2>
+              <p class="mt-1 text-sm leading-relaxed text-sand-700">{r.text}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </Container>
+  </section>
+</BaseLayout>
