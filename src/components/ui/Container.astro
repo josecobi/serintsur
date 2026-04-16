@@ -6,9 +6,16 @@ export interface Props {
   class?: string;
 }
 
-const { as: Tag = "div", width = "wide", padY = "none", class: className = "" } = Astro.props;
+type Width = NonNullable<Props["width"]>;
+type PadY = NonNullable<Props["padY"]>;
 
-const widthMap = {
+const props: Props = Astro.props;
+const Tag = props.as ?? "div";
+const width: Width = props.width ?? "wide";
+const padY: PadY = props.padY ?? "none";
+const className = props.class ?? "";
+
+const widthMap: Record<Width, string> = {
   narrow: "max-w-[64rem]",
   wide: "max-w-[80rem]",
   prose: "max-w-[68ch]",
@@ -22,7 +29,7 @@ const widthMap = {
     lg:  64 → 96
     xl:  96 → 128
 */
-const padYMap = {
+const padYMap: Record<PadY, string> = {
   none: "",
   sm: "py-8 md:py-12",
   md: "py-12 md:py-16",

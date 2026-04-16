@@ -1,31 +1,41 @@
 ---
-// Home page (Spanish).
-//
-// Backend-owned placeholder: fetches everything the home page needs from
-// Sanity in one frontmatter pass and mounts the shell. The Designer replaces
-// the visual layout; backend guarantees every `.home-*` hook below receives
-// real data (or a graceful empty state on Sanity failure).
+/*
+  Home page (Spanish).
 
-import Chatbot from '~/components/chatbot/Chatbot';
+  Designer pass: wires Backend's Sanity data into the design-system sections
+  (Hero → Stats → Services → Projects → Clients → CTA). Every fetch is wrapped
+  with a .catch so a Sanity outage can't blank the page — each section
+  gracefully hides if its data is empty.
+*/
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import HeroSection from '~/components/sections/HeroSection.astro';
+import StatsSection, { type Stat } from '~/components/sections/StatsSection.astro';
+import ServicesGrid, {
+  type Service as ServiceCard,
+  type ServiceIcon,
+} from '~/components/sections/ServicesGrid.astro';
+import ProjectsShowcase, {
+  type FeaturedProject,
+} from '~/components/sections/ProjectsShowcase.astro';
+import ClientLogos, {
+  type ClientLogo as ClientLogoData,
+} from '~/components/sections/ClientLogos.astro';
+import CtaBanner from '~/components/sections/CtaBanner.astro';
 import { projectsToCardData } from '~/components/project-filter/mapper';
 import { getStrings } from '~/lib/i18n';
 import {
   getActiveClientLogos,
   getActiveServices,
-  getActiveTestimonials,
   getFeaturedProjects,
   getSiteSettings,
   pickLocale,
   urlForImage,
 } from '~/lib/sanity';
-import '~/styles/global.css';
 
 const locale = 'es';
 const t = getStrings(locale);
 
-// Fetch in parallel — one page load, one frontmatter pass. Every call is
-// wrapped so a single Sanity outage can't blank the whole page.
-const [siteSettings, services, featuredProjectsRaw, testimonials, clientLogos] =
+const [siteSettings, services, featuredProjectsRaw, clientLogos] =
   await Promise.all([
     getSiteSettings().catch((e) => {
       console.error('[home] siteSettings fetch failed:', e);
@@ -39,205 +49,169 @@ const [siteSettings, services, featuredProjectsRaw, testimonials, clientLogos] =
       console.error('[home] featured projects fetch failed:', e);
       return [];
     }),
-    getActiveTestimonials().catch((e) => {
-      console.error('[home] testimonials fetch failed:', e);
-      return [];
-    }),
     getActiveClientLogos().catch((e) => {
       console.error('[home] client logos fetch failed:', e);
       return [];
     }),
   ]);
 
-const featuredProjects = projectsToCardData(featuredProjectsRaw, locale);
+const featuredProjectsCardData = projectsToCardData(featuredProjectsRaw, locale);
 const tagline = pickLocale(siteSettings?.tagline, locale) ?? t.site.tagline;
 const stats = siteSettings?.stats;
+
+// ─── Map the service icon field onto our ServiceIcon keys ──
+// Sanity's `icon` field is a free-form string; we fall back to matching the
+// service slug (e.g. `servicios/reformas` → `reformas`) so design works even
+// before the CMS content has the icon column filled in.
+const ICON_KEYS: ServiceIcon[] = [
+  'reformas',
+  'rehabilitacion',
+  'construccion',
+  'mantenimiento',
+];
+
+function resolveServiceIcon(
+  icon: string | undefined,
+  slug: string,
+): ServiceIcon {
+  if (icon && (ICON_KEYS as string[]).includes(icon)) return icon as ServiceIcon;
+  const slugTail = slug.split('/').pop() ?? slug;
+  if ((ICON_KEYS as string[]).includes(slugTail)) return slugTail as ServiceIcon;
+  return 'default';
+}
+
+// ─── Shape data for each section ──
+const serviceCards: ServiceCard[] = services.map((service) => ({
+  title: pickLocale(service.title, locale) ?? '',
+  description: pickLocale(service.description, locale) ?? '',
+  href: `/${locale}/servicios/${service.slug.current}/`,
+  icon: resolveServiceIcon(service.icon, service.slug.current),
+  linkLabel: t.common.readMore,
+}));
+
+const featuredProjectsForShowcase: FeaturedProject[] = featuredProjectsCardData
+  .filter((p) => !!p.imageUrl)
+  .map((p) => ({
+    title: p.title,
+    category: p.serviceTitle ?? t.common.service,
+    location: [p.city, p.province].filter(Boolean).join(', '),
+    year: p.year ? String(p.year) : undefined,
+    imageSrc: p.imageUrl!,
+    imageAlt: p.imageAlt ?? p.title,
+    href: `/${locale}/proyectos/${p.slug}/`,
+  }));
+
+const clientLogoData: ClientLogoData[] = clientLogos.map((c) => ({
+  name: c.name,
+  src: urlForImage(c.logo).width(320).url(),
+  alt: c.name,
+  href: c.url,
+}));
+
+const heroStats = stats
+  ? [
+      stats.projectsCompleted !== undefined && {
+        value: `+${stats.projectsCompleted}`,
+        label: 'Proyectos',
+      },
+      stats.yearsExperience !== undefined && {
+        value: `${stats.yearsExperience}`,
+        label: 'Años',
+      },
+      stats.teamSize !== undefined && {
+        value: `${stats.teamSize}`,
+        label: 'Profesionales',
+      },
+    ].filter(Boolean) as { value: string; label: string }[]
+  : [];
+
+const statsForBand: Stat[] = [];
+if (stats) {
+  if (stats.projectsCompleted !== undefined) {
+    statsForBand.push({
+      value: stats.projectsCompleted,
+      suffix: '+',
+      label: 'Proyectos completados',
+    });
+  }
+  if (stats.yearsExperience !== undefined) {
+    statsForBand.push({ value: stats.yearsExperience, label: 'Años de experiencia' });
+  }
+  if (stats.teamSize !== undefined) {
+    statsForBand.push({ value: stats.teamSize, label: 'Profesionales' });
+  }
+  if (stats.citiesCovered !== undefined) {
+    statsForBand.push({ value: stats.citiesCovered, label: 'Provincias' });
+  }
+}
 ---
 
-<!doctype html>
-<html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{t.site.name} — {t.site.tagline}</title>
-    <meta name="description" content={t.site.descriptionShort} />
-  </head>
-  <body class="bg-white min-h-screen">
-    <main class="home-root">
-      {/* Hero */}
-      <section class="home-hero max-w-5xl mx-auto px-4 py-10">
-        <h1 class="home-hero-title text-3xl sm:text-5xl font-semibold">
-          {t.site.name}
-        </h1>
-        <p class="home-hero-tagline mt-3 text-lg text-gray-700">{tagline}</p>
-        <div class="home-hero-ctas mt-5 flex flex-wrap gap-3">
-          <a href={`/${locale}/presupuesto`} class="home-cta-primary bg-gray-900 text-white rounded-md px-4 py-2 text-sm">
-            {t.common.requestQuote}
-          </a>
-          <a href={`/${locale}/proyectos`} class="home-cta-secondary border border-gray-300 rounded-md px-4 py-2 text-sm">
-            {t.common.seeProjects}
-          </a>
-        </div>
-      </section>
+<BaseLayout
+  title={`${t.site.name} — ${tagline}`}
+  description={t.site.descriptionShort}
+  lang={locale}
+>
+  <HeroSection
+    eyebrow="Serintsur Multiservicios S.L."
+    title="Construimos y rehabilitamos espacios que perduran"
+    subtitle={tagline}
+    primaryCta={{ label: t.common.requestQuote, href: `/${locale}/presupuesto/` }}
+    secondaryCta={{ label: t.common.seeProjects, href: `/${locale}/proyectos/` }}
+    stats={heroStats}
+  />
 
-      {/* Stats (from siteSettings) */}
-      {stats && (
-        <section class="home-stats max-w-5xl mx-auto px-4 py-6 border-t border-gray-200">
-          <dl class="home-stats-grid grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-            {stats.projectsCompleted !== undefined && (
-              <div class="home-stat">
-                <dt class="text-sm text-gray-600">Proyectos</dt>
-                <dd class="text-2xl font-semibold">{stats.projectsCompleted}</dd>
-              </div>
-            )}
-            {stats.yearsExperience !== undefined && (
-              <div class="home-stat">
-                <dt class="text-sm text-gray-600">Años</dt>
-                <dd class="text-2xl font-semibold">{stats.yearsExperience}</dd>
-              </div>
-            )}
-            {stats.teamSize !== undefined && (
-              <div class="home-stat">
-                <dt class="text-sm text-gray-600">Equipo</dt>
-                <dd class="text-2xl font-semibold">{stats.teamSize}</dd>
-              </div>
-            )}
-            {stats.citiesCovered !== undefined && (
-              <div class="home-stat">
-                <dt class="text-sm text-gray-600">Ciudades</dt>
-                <dd class="text-2xl font-semibold">{stats.citiesCovered}</dd>
-              </div>
-            )}
-          </dl>
-        </section>
-      )}
+  {serviceCards.length > 0 && (
+    <ServicesGrid
+      heading={{
+        eyebrow: 'Nuestros servicios',
+        title: 'Qué hacemos',
+        subtitle:
+          'De la rehabilitación de fachadas a la construcción de villas a medida, cubrimos todo el ciclo de edificación en Cádiz, Málaga y Sevilla.',
+      }}
+      services={serviceCards}
+      linkLabelDefault={t.common.readMore}
+      background="offwhite"
+    />
+  )}
 
-      {/* Services */}
-      <section class="home-services max-w-5xl mx-auto px-4 py-10 border-t border-gray-200">
-        <header class="mb-5 flex items-baseline justify-between">
-          <h2 class="home-section-title text-2xl font-semibold">{t.nav.services}</h2>
-          <a href={`/${locale}/servicios`} class="text-sm text-gray-600 underline">
-            {t.common.seeAll}
-          </a>
-        </header>
-        {services.length === 0 ? (
-          <p class="text-gray-500">—</p>
-        ) : (
-          <ul class="home-services-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {services.map((service) => {
-              const title = pickLocale(service.title, locale) ?? '';
-              const description = pickLocale(service.description, locale);
-              return (
-                <li class="home-service-card border border-gray-200 rounded-lg p-4">
-                  <a href={`/${locale}/servicios/${service.slug.current}`} class="block group">
-                    <h3 class="home-service-title font-semibold text-base mb-1 group-hover:underline">
-                      {title}
-                    </h3>
-                    {description && (
-                      <p class="home-service-desc text-sm text-gray-600 line-clamp-3">
-                        {description}
-                      </p>
-                    )}
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </section>
+  {featuredProjectsForShowcase.length > 0 && (
+    <ProjectsShowcase
+      heading={{
+        eyebrow: 'Obra reciente',
+        title: 'Proyectos destacados',
+        subtitle:
+          'Una selección de obras entregadas para administraciones, bodegas, hoteles y promotores.',
+      }}
+      projects={featuredProjectsForShowcase}
+      viewAll={{ label: t.common.seeAll, href: `/${locale}/proyectos/` }}
+      background="white"
+    />
+  )}
 
-      {/* Featured projects */}
-      <section class="home-featured max-w-5xl mx-auto px-4 py-10 border-t border-gray-200">
-        <header class="mb-5 flex items-baseline justify-between">
-          <h2 class="home-section-title text-2xl font-semibold">{t.nav.projects}</h2>
-          <a href={`/${locale}/proyectos`} class="text-sm text-gray-600 underline">
-            {t.common.seeAll}
-          </a>
-        </header>
-        {featuredProjects.length === 0 ? (
-          <p class="text-gray-500">—</p>
-        ) : (
-          <ul class="home-featured-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {featuredProjects.map((project) => (
-              <li class="home-featured-card">
-                <a
-                  href={`/${locale}/proyectos/${project.slug}`}
-                  class="block border border-gray-200 rounded-lg overflow-hidden hover:border-gray-900"
-                >
-                  <div class="aspect-[4/3] bg-gray-100 overflow-hidden">
-                    {project.imageUrl && (
-                      <img
-                        src={project.imageUrl}
-                        alt={project.imageAlt ?? project.title}
-                        loading="lazy"
-                        class="w-full h-full object-cover"
-                      />
-                    )}
-                  </div>
-                  <div class="p-3">
-                    <h3 class="font-semibold text-sm line-clamp-2">{project.title}</h3>
-                    {project.year && <p class="text-xs text-gray-500 mt-1">{project.year}</p>}
-                  </div>
-                </a>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+  {statsForBand.length > 0 && (
+    <StatsSection
+      heading={{
+        eyebrow: 'Trayectoria',
+        title: 'Números que respaldan el oficio',
+      }}
+      stats={statsForBand}
+    />
+  )}
 
-      {/* Testimonials */}
-      {testimonials.length > 0 && (
-        <section class="home-testimonials max-w-5xl mx-auto px-4 py-10 border-t border-gray-200">
-          <h2 class="home-section-title text-2xl font-semibold mb-5">Testimonios</h2>
-          <ul class="home-testimonials-grid grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {testimonials.map((testimonial) => {
-              const quote = pickLocale(testimonial.quote, locale);
-              return (
-                <li class="home-testimonial border border-gray-200 rounded-lg p-4">
-                  {quote && <blockquote class="text-sm italic">“{quote}”</blockquote>}
-                  <div class="mt-2 text-xs text-gray-600">
-                    <span class="font-medium">{testimonial.author}</span>
-                    {testimonial.role && <span> · {testimonial.role}</span>}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-      )}
+  {clientLogoData.length > 0 && (
+    <ClientLogos heading="Confían en nosotros" logos={clientLogoData} speed="normal" />
+  )}
 
-      {/* Client logos */}
-      {clientLogos.length > 0 && (
-        <section class="home-clients max-w-5xl mx-auto px-4 py-10 border-t border-gray-200">
-          <h2 class="home-section-title text-xl font-semibold mb-5">Clientes</h2>
-          <ul class="home-clients-grid flex flex-wrap items-center gap-6">
-            {clientLogos.map((client) => {
-              const logoUrl = urlForImage(client.logo).width(160).url();
-              const wrapper = client.url ? 'a' : 'div';
-              const Wrapper = wrapper as 'a' | 'div';
-              return (
-                <li class="home-client">
-                  <Wrapper
-                    href={client.url}
-                    target={client.url ? '_blank' : undefined}
-                    rel={client.url ? 'noopener noreferrer' : undefined}
-                    class="inline-block"
-                  >
-                    <img
-                      src={logoUrl}
-                      alt={client.name}
-                      loading="lazy"
-                      class="h-10 w-auto grayscale opacity-70 hover:opacity-100"
-                    />
-                  </Wrapper>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-      )}
-    </main>
-
-    <Chatbot client:idle language={locale} />
-  </body>
-</html>
+  <CtaBanner
+    eyebrow="¿Tienes un proyecto en mente?"
+    title="Hablemos de tu obra"
+    subtitle="Cuéntanos qué necesitas y te respondemos en menos de 24 horas con una propuesta inicial."
+    primaryCta={{ label: t.common.requestQuote, href: `/${locale}/presupuesto/` }}
+    secondaryCta={{
+      label: t.common.chatWhatsApp,
+      href: 'https://wa.me/34655634800',
+      variant: 'whatsapp',
+    }}
+    variant="band"
+  />
+</BaseLayout>

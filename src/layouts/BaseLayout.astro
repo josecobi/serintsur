@@ -1,5 +1,15 @@
 ---
 import "../styles/global.css";
+import Header from "../components/navigation/Header.astro";
+import Footer from "../components/navigation/Footer.astro";
+import Chatbot from "../components/chatbot/Chatbot";
+import {
+  alternateLinks,
+  getLocaleFromUrl,
+  getStrings,
+  LOCALE_HREFLANG,
+  type Locale,
+} from "../lib/i18n";
 
 export interface Props {
   title: string;
@@ -7,24 +17,39 @@ export interface Props {
   image?: string;
   canonical?: string;
   noindex?: boolean;
-  lang?: "es" | "en" | "de";
+  lang?: Locale;
   bodyClass?: string;
+  /** Render the site Header by default. Set false for full-bleed pages. */
+  chrome?: boolean;
+  /** Render the Chatbot island by default. Set false to omit (e.g. Studio). */
+  chatbot?: boolean;
 }
 
+const detectedLocale = getLocaleFromUrl(Astro.url);
 const {
   title,
-  description = "Construcción, rehabilitación y mantenimiento de edificios en Cádiz, Málaga y Sevilla. Serintsur Multiservicios.",
+  description,
   image = "/og-default.jpg",
   canonical,
   noindex = false,
-  lang = "es",
+  lang = detectedLocale,
   bodyClass = "",
+  chrome = true,
+  chatbot = true,
 } = Astro.props;
 
+const t = getStrings(lang);
+const fallbackDescription = t.site.descriptionShort;
+
 const siteUrl = Astro.site?.toString() ?? "https://serintsur.com";
+const origin = Astro.site?.origin ?? "https://serintsur.com";
 const canonicalUrl = canonical ?? new URL(Astro.url.pathname, siteUrl).toString();
 const ogImage = new URL(image, siteUrl).toString();
-const fullTitle = title.includes("Serintsur") ? title : `${title} | Serintsur Multiservicios`;
+const fullTitle = title.includes("Serintsur") ? title : `${title} | ${t.site.name}`;
+const metaDescription = description ?? fallbackDescription;
+
+const alternates = alternateLinks(Astro.url.pathname, origin);
+const xDefault = alternates.find((a) => a.locale === "es");
 ---
 
 <!doctype html>
@@ -35,39 +60,37 @@ const fullTitle = title.includes("Serintsur") ? title : `${title} | Serintsur Mu
     <meta name="generator" content={Astro.generator} />
 
     <title>{fullTitle}</title>
-    <meta name="description" content={description} />
+    <meta name="description" content={metaDescription} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonicalUrl} />
 
-    <!-- Theme color matches brand navy for mobile browser chrome -->
     <meta name="theme-color" content="#1e3a5f" />
     <meta name="color-scheme" content="light" />
 
-    <!-- Favicons -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Serintsur Multiservicios" />
+    <meta property="og:site_name" content={t.site.name} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:title" content={fullTitle} />
-    <meta property="og:description" content={description} />
+    <meta property="og:description" content={metaDescription} />
     <meta property="og:image" content={ogImage} />
-    <meta property="og:locale" content={lang === "es" ? "es_ES" : lang === "de" ? "de_DE" : "en_GB"} />
+    <meta property="og:locale" content={LOCALE_HREFLANG[lang].replace("-", "_")} />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={fullTitle} />
-    <meta name="twitter:description" content={description} />
+    <meta name="twitter:description" content={metaDescription} />
     <meta name="twitter:image" content={ogImage} />
 
-    <!-- hreflang alternates -->
-    <link rel="alternate" hreflang="es" href={new URL(Astro.url.pathname.replace(/^\/(en|de)\//, "/es/"), siteUrl).toString()} />
-    <link rel="alternate" hreflang="en" href={new URL(Astro.url.pathname.replace(/^\/(es|de)\//, "/en/"), siteUrl).toString()} />
-    <link rel="alternate" hreflang="de" href={new URL(Astro.url.pathname.replace(/^\/(es|en)\//, "/de/"), siteUrl).toString()} />
-    <link rel="alternate" hreflang="x-default" href={new URL(Astro.url.pathname.replace(/^\/(en|de)\//, "/es/"), siteUrl).toString()} />
+    <!-- hreflang alternates (one per locale + x-default pointing to ES) -->
+    {alternates.map((alt) => (
+      <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />
+    ))}
+    {xDefault && <link rel="alternate" hreflang="x-default" href={xDefault.href} />}
 
     <!-- Fonts: DM Sans (body) + JetBrains Mono (technical) from Google; Clash Display (headings) from Fontshare -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -85,20 +108,33 @@ const fullTitle = title.includes("Serintsur") ? title : `${title} | Serintsur Mu
     <slot name="head" />
   </head>
   <body class:list={["min-h-full bg-white text-sand-700 antialiased", bodyClass]}>
-    <!-- Skip link for keyboard users -->
     <a
       href="#main"
       class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-navy focus:px-4 focus:py-2 focus:text-white focus:shadow-lg"
     >
-      Saltar al contenido
+      {t.nav.home === "Home" ? "Skip to content" : lang === "de" ? "Zum Inhalt springen" : "Saltar al contenido"}
     </a>
 
-    <slot name="header" />
+    {chrome ? (
+      <slot name="header">
+        <Header currentLocale={lang} />
+      </slot>
+    ) : (
+      <slot name="header" />
+    )}
 
     <main id="main" class="min-h-[60vh]">
       <slot />
     </main>
 
-    <slot name="footer" />
+    {chrome ? (
+      <slot name="footer">
+        <Footer currentLocale={lang} />
+      </slot>
+    ) : (
+      <slot name="footer" />
+    )}
+
+    {chatbot && <Chatbot client:idle language={lang} />}
   </body>
 </html>

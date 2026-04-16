@@ -2,75 +2,41 @@
 /*
   Header — sticky top bar.
   Desktop: logo · nav · lang switcher · CTA.
-  Mobile: logo · lang · hamburger (opens MobileMenu).
-  Scroll adds a subtle shadow and tighter bar height.
+  Mobile: logo · hamburger (opens MobileMenu).
+  Scroll adds a subtle shadow.
 
-  TODO(content): nav labels + CTA label per locale will come from i18n strings.
-  Until then, we select a static ES/EN/DE copy table here.
+  Copy comes from `src/lib/i18n.ts` via `getStrings(locale)`. Nav slugs are
+  Spanish across all locales pending a slug-translation strategy.
 */
 import Container from "../ui/Container.astro";
 import Button from "../ui/Button.astro";
 import LanguageSwitcher from "./LanguageSwitcher.astro";
 import MobileMenu from "./MobileMenu.astro";
-
-type Locale = "es" | "en" | "de";
+import { getLocaleFromUrl, getStrings, type Locale } from "../../lib/i18n";
 
 export interface Props {
   currentLocale?: Locale;
 }
 
-const { currentLocale: propLocale } = Astro.props;
 const pathname = Astro.url.pathname;
-const currentLocale: Locale =
-  propLocale ?? ((pathname.match(/^\/(es|en|de)(\/|$)/)?.[1] as Locale | undefined) ?? "es");
+const currentLocale: Locale = Astro.props.currentLocale ?? getLocaleFromUrl(Astro.url);
+const t = getStrings(currentLocale);
 
-const navCopy: Record<Locale, { items: { slug: string; label: string }[]; cta: string; menuLabel: string }> = {
-  es: {
-    items: [
-      { slug: "", label: "Inicio" },
-      { slug: "servicios", label: "Servicios" },
-      { slug: "proyectos", label: "Proyectos" },
-      { slug: "sobre-nosotros", label: "Sobre nosotros" },
-      { slug: "contacto", label: "Contacto" },
-    ],
-    cta: "Presupuesto",
-    menuLabel: "Abrir menú",
-  },
-  en: {
-    items: [
-      { slug: "", label: "Home" },
-      { slug: "servicios", label: "Services" },
-      { slug: "proyectos", label: "Projects" },
-      { slug: "sobre-nosotros", label: "About" },
-      { slug: "contacto", label: "Contact" },
-    ],
-    cta: "Get a quote",
-    menuLabel: "Open menu",
-  },
-  de: {
-    items: [
-      { slug: "", label: "Start" },
-      { slug: "servicios", label: "Leistungen" },
-      { slug: "proyectos", label: "Projekte" },
-      { slug: "sobre-nosotros", label: "Über uns" },
-      { slug: "contacto", label: "Kontakt" },
-    ],
-    cta: "Angebot",
-    menuLabel: "Menü öffnen",
-  },
-};
+const navItems: { href: string; label: string }[] = [
+  { href: `/${currentLocale}/`, label: t.nav.home },
+  { href: `/${currentLocale}/servicios/`, label: t.nav.services },
+  { href: `/${currentLocale}/proyectos/`, label: t.nav.projects },
+  { href: `/${currentLocale}/sobre-nosotros/`, label: t.nav.about },
+  { href: `/${currentLocale}/contacto/`, label: t.nav.contact },
+];
 
-const { items, cta, menuLabel } = navCopy[currentLocale];
-const navItems = items.map((item) => ({
-  href: `/${currentLocale}/${item.slug}${item.slug ? "/" : ""}`,
-  label: item.label,
-}));
-
-const quoteSlug = currentLocale === "es" ? "presupuesto" : currentLocale === "en" ? "quote" : "angebot";
-const ctaHref = `/${currentLocale}/${quoteSlug}/`;
+const ctaHref = `/${currentLocale}/presupuesto/`;
+const ctaLabel = t.nav.estimator;
 
 function isActive(href: string): boolean {
-  if (href === `/${currentLocale}/`) return pathname === href;
+  if (href === `/${currentLocale}/`) {
+    return pathname === href || pathname === `/${currentLocale}`;
+  }
   return pathname === href || pathname.startsWith(href);
 }
 ---
@@ -85,7 +51,7 @@ function isActive(href: string): boolean {
       <a
         href={`/${currentLocale}/`}
         class="flex items-center gap-2 text-navy transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-4 rounded-sm"
-        aria-label="Serintsur Multiservicios — Inicio"
+        aria-label={`${t.site.name} — ${t.nav.home}`}
       >
         <!-- Placeholder mark until logo SVG lands -->
         <span class="inline-flex h-9 w-9 items-center justify-center rounded-md bg-navy text-white font-display text-lg font-bold">
@@ -97,7 +63,7 @@ function isActive(href: string): boolean {
       </a>
 
       <!-- Desktop nav -->
-      <nav class="hidden lg:flex" aria-label="Navegación principal">
+      <nav class="hidden lg:flex" aria-label={t.nav.home}>
         <ul class="flex items-center gap-1">
           {
             navItems.map((item) => {
@@ -132,14 +98,14 @@ function isActive(href: string): boolean {
 
         <!-- Desktop CTA -->
         <div class="hidden lg:block">
-          <Button variant="primary" size="sm" href={ctaHref}>{cta}</Button>
+          <Button variant="primary" size="sm" href={ctaHref}>{ctaLabel}</Button>
         </div>
 
         <!-- Mobile hamburger -->
         <button
           type="button"
           data-mobile-menu-open
-          aria-label={menuLabel}
+          aria-label={t.nav.openMenu}
           aria-controls="mobile-menu"
           class="inline-flex h-10 w-10 items-center justify-center rounded-md text-navy transition-colors hover:bg-sand-100 focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-2 lg:hidden"
         >
@@ -157,15 +123,11 @@ function isActive(href: string): boolean {
 <MobileMenu
   currentLocale={currentLocale}
   navItems={navItems}
-  ctaLabel={cta}
+  ctaLabel={ctaLabel}
   ctaHref={ctaHref}
 />
 
 <script>
-  /*
-    Add [data-scrolled=true] on the header after the user scrolls past a small
-    threshold. Used to show the shadow and slightly compact the bar.
-  */
   const header = document.getElementById("site-header");
   if (header) {
     const update = () => {

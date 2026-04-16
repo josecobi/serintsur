@@ -153,7 +153,7 @@ const { currentLocale = "es", navItems, ctaLabel, ctaHref } = Astro.props;
       btn.addEventListener("click", () => dialog.showModal());
     });
     dialog.querySelectorAll<HTMLElement>("[data-mobile-menu-close]").forEach((el) => {
-      el.addEventListener("click", (e) => {
+      el.addEventListener("click", () => {
         // Anchor tags should still navigate; close the dialog first so
         // the new page loads without a lingering modal.
         dialog.close();

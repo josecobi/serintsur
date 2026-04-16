@@ -14,24 +14,25 @@ export interface Props {
   ariaLabel?: string;
 }
 
-const {
-  variant = "default",
-  padding = "md",
-  href,
-  hoverable = !!href,
-  as: Tag = href ? "article" : "div",
-  class: className = "",
-  ariaLabel,
-} = Astro.props;
+type Variant = NonNullable<Props["variant"]>;
+type Padding = NonNullable<Props["padding"]>;
 
-const variantMap = {
+const props: Props = Astro.props;
+const variant: Variant = props.variant ?? "default";
+const padding: Padding = props.padding ?? "md";
+const { href, ariaLabel } = props;
+const hoverable = props.hoverable ?? !!href;
+const Tag = props.as ?? (href ? "article" : "div");
+const className = props.class ?? "";
+
+const variantMap: Record<Variant, string> = {
   default: "bg-white",
   bordered: "bg-white border border-sand-200",
   elevated: "bg-white shadow-md",
   navy: "bg-navy text-white",
 };
 
-const paddingMap = {
+const paddingMap: Record<Padding, string> = {
   none: "",
   sm: "p-4",
   md: "p-6",
