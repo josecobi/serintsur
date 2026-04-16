@@ -622,3 +622,21 @@ import ContactForm from '~/components/contact-form/ContactForm';
 **Backend deliverables — final status**: items 1–11 complete. This branch (`feat/backend-integrations`) is ready for Designer hand-off. All React islands (Estimator, Chatbot, ProjectFilter, ContactForm) are minimal-chrome but functional, every class hook is documented, and `astro check` + `astro build` both pass. Blockers for launch that are NOT backend scope: Designer shell (BaseLayout, real styling), Content population in Sanity (projects, services, testimonials, site settings, about page body, price matrix calibration), SEO agent's structured data, and the i18n duplication for `/en/*` + `/de/*` routes.
 
 ---
+
+## 2026-04-16 CONTENT — Deliverable #7 complete — Chatbot system prompts
+
+Rewrote and expanded chatbot system prompts in `docs/ai-integrations.md`.
+
+**What changed:**
+- Split into 3 separate prompts: `es`, `en`, `de` (was Spanish-only)
+- Added full project list (all 14 from dossier), complete client roster, all 9 values, working hours, company tagline
+- ES: brand voice rules (short sentences, no corporate fluff, "encargado de obra" tone)
+- EN: expat-specific reassurance framing, Costa del Sol coverage named explicitly (Estepona, Marbella, Mijas, Nerja), emphasis on English-speaking PM and written confirmations
+- DE: Sie form throughout, Zuverlässigkeit/Terminplanung emphasis, German-language support callout
+- All three: consistent lead capture flow, never-invent rule, estimator widget mention, language-switching instruction
+
+**For Backend Agent:** Implement as `SYSTEM_PROMPT: Record<'es'|'en'|'de', string>` in `/api/chat` edge function, selected by the `language` param in the request body. Full text in `docs/ai-integrations.md` under "System Prompts".
+
+**All 8 content deliverables now complete.** Content branch is ready for Designer and Backend integration.
+
+---

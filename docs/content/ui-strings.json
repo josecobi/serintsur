@@ -1,0 +1,274 @@
+{
+  "nav": {
+    "home":        { "es": "Inicio",          "en": "Home",          "de": "Startseite" },
+    "services":    { "es": "Servicios",        "en": "Services",      "de": "Leistungen" },
+    "projects":    { "es": "Proyectos",        "en": "Projects",      "de": "Projekte" },
+    "about":       { "es": "Sobre nosotros",   "en": "About us",      "de": "Über uns" },
+    "contact":     { "es": "Contacto",         "en": "Contact",       "de": "Kontakt" },
+    "quote":       { "es": "Presupuesto",      "en": "Get a quote",   "de": "Angebot anfragen" },
+    "menuOpen":    { "es": "Abrir menú",       "en": "Open menu",     "de": "Menü öffnen" },
+    "menuClose":   { "es": "Cerrar menú",      "en": "Close menu",    "de": "Menü schließen" }
+  },
+
+  "buttons": {
+    "requestQuote":     { "es": "Pedir presupuesto",         "en": "Request a quote",          "de": "Angebot anfordern" },
+    "seeProjects":      { "es": "Ver proyectos",             "en": "See our projects",          "de": "Projekte ansehen" },
+    "contactUs":        { "es": "Contáctanos",               "en": "Contact us",                "de": "Kontaktieren Sie uns" },
+    "learnMore":        { "es": "Saber más",                 "en": "Learn more",                "de": "Mehr erfahren" },
+    "whatsapp":         { "es": "Escríbenos por WhatsApp",   "en": "Message us on WhatsApp",    "de": "WhatsApp schreiben" },
+    "callUs":           { "es": "Llamar ahora",              "en": "Call us now",               "de": "Jetzt anrufen" },
+    "send":             { "es": "Enviar",                    "en": "Send",                      "de": "Absenden" },
+    "sending":          { "es": "Enviando...",               "en": "Sending...",                "de": "Wird gesendet..." },
+    "viewProject":      { "es": "Ver proyecto",             "en": "View project",              "de": "Projekt ansehen" },
+    "viewAllProjects":  { "es": "Ver todos los proyectos",  "en": "View all projects",         "de": "Alle Projekte ansehen" },
+    "viewAllServices":  { "es": "Ver todos los servicios",  "en": "View all services",         "de": "Alle Leistungen ansehen" },
+    "back":             { "es": "Volver",                    "en": "Back",                      "de": "Zurück" },
+    "next":             { "es": "Siguiente",                 "en": "Next",                      "de": "Weiter" },
+    "prev":             { "es": "Anterior",                  "en": "Previous",                  "de": "Zurück" },
+    "close":            { "es": "Cerrar",                    "en": "Close",                     "de": "Schließen" },
+    "startEstimator":   { "es": "Calcular mi presupuesto",  "en": "Calculate my estimate",     "de": "Kostenvoranschlag berechnen" },
+    "restart":          { "es": "Empezar de nuevo",          "en": "Start over",                "de": "Von vorne beginnen" }
+  },
+
+  "contact": {
+    "form": {
+      "name":              { "es": "Nombre completo",           "en": "Full name",                 "de": "Vollständiger Name" },
+      "namePlaceholder":   { "es": "Tu nombre y apellidos",     "en": "Your full name",            "de": "Ihr Vor- und Nachname" },
+      "email":             { "es": "Correo electrónico",        "en": "Email address",             "de": "E-Mail-Adresse" },
+      "emailPlaceholder":  { "es": "tu@email.com",              "en": "your@email.com",            "de": "ihre@email.com" },
+      "phone":             { "es": "Teléfono",                  "en": "Phone number",              "de": "Telefonnummer" },
+      "phonePlaceholder":  { "es": "6XX XXX XXX",               "en": "+34 6XX XXX XXX",           "de": "+34 6XX XXX XXX" },
+      "subject":           { "es": "Asunto",                    "en": "Subject",                   "de": "Betreff" },
+      "subjectPlaceholder":{ "es": "¿En qué podemos ayudarte?", "en": "How can we help you?",     "de": "Wie können wir Ihnen helfen?" },
+      "message":           { "es": "Mensaje",                   "en": "Message",                   "de": "Nachricht" },
+      "messagePlaceholder":{ "es": "Cuéntanos tu proyecto...",  "en": "Tell us about your project...", "de": "Beschreiben Sie Ihr Projekt..." },
+      "service":           { "es": "Tipo de servicio",          "en": "Service type",              "de": "Leistungsart" },
+      "serviceOptions": {
+        "placeholder":     { "es": "Selecciona un servicio",    "en": "Select a service",          "de": "Leistung auswählen" },
+        "reforma":         { "es": "Reforma integral",          "en": "Full renovation",           "de": "Komplettsanierung" },
+        "fachada":         { "es": "Rehabilitación de fachada", "en": "Facade rehabilitation",     "de": "Fassadensanierung" },
+        "construccion":    { "es": "Construcción de vivienda",  "en": "New home construction",     "de": "Neubau" },
+        "mantenimiento":   { "es": "Mantenimiento de edificio", "en": "Building maintenance",      "de": "Gebäudewartung" },
+        "otro":            { "es": "Otro",                      "en": "Other",                     "de": "Sonstiges" }
+      },
+      "privacy": {
+        "es": "Al enviar este formulario aceptas nuestra política de privacidad.",
+        "en": "By submitting this form you accept our privacy policy.",
+        "de": "Mit dem Absenden stimmen Sie unserer Datenschutzerklärung zu."
+      },
+      "required": { "es": "Obligatorio", "en": "Required", "de": "Pflichtfeld" }
+    },
+
+    "success": {
+      "title": { "es": "¡Mensaje recibido!", "en": "Message received!", "de": "Nachricht erhalten!" },
+      "body": {
+        "es": "Te contactaremos en menos de 24 horas. Para una respuesta más rápida, escríbenos por WhatsApp.",
+        "en": "We'll get back to you within 24 hours. For a faster response, message us on WhatsApp.",
+        "de": "Wir melden uns innerhalb von 24 Stunden. Für eine schnellere Antwort kontaktieren Sie uns über WhatsApp."
+      }
+    },
+
+    "error": {
+      "title": { "es": "Error al enviar", "en": "Could not send message", "de": "Fehler beim Senden" },
+      "body": {
+        "es": "No pudimos enviar tu mensaje. Por favor, inténtalo de nuevo o escríbenos por WhatsApp.",
+        "en": "We couldn't send your message. Please try again or contact us via WhatsApp.",
+        "de": "Ihre Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut oder schreiben Sie uns über WhatsApp."
+      }
+    },
+
+    "validation": {
+      "nameRequired":    { "es": "Por favor, introduce tu nombre",         "en": "Please enter your name",              "de": "Bitte geben Sie Ihren Namen ein" },
+      "emailRequired":   { "es": "Por favor, introduce tu email",          "en": "Please enter your email",             "de": "Bitte geben Sie Ihre E-Mail-Adresse ein" },
+      "emailInvalid":    { "es": "El email no es válido",                  "en": "Please enter a valid email address",  "de": "Bitte geben Sie eine gültige E-Mail-Adresse ein" },
+      "messageRequired": { "es": "Por favor, escribe un mensaje",          "en": "Please enter a message",              "de": "Bitte geben Sie eine Nachricht ein" },
+      "phoneInvalid":    { "es": "El teléfono no es válido",               "en": "Please enter a valid phone number",   "de": "Bitte geben Sie eine gültige Telefonnummer ein" }
+    }
+  },
+
+  "estimator": {
+    "title":    { "es": "Calcula tu presupuesto",          "en": "Get your estimate",               "de": "Kostenvoranschlag berechnen" },
+    "subtitle": {
+      "es": "Responde 4 preguntas y recibe un rango de precio orientativo al instante.",
+      "en": "Answer 4 questions and get an instant price estimate.",
+      "de": "Beantworten Sie 4 Fragen und erhalten Sie sofort eine Preisschätzung."
+    },
+    "step": { "es": "Paso", "en": "Step", "de": "Schritt" },
+    "of":   { "es": "de",   "en": "of",   "de": "von" },
+
+    "steps": {
+      "projectType": {
+        "label":    { "es": "Tipo de proyecto",                   "en": "Project type",                    "de": "Projektart" },
+        "question": { "es": "¿Qué tipo de trabajo necesitas?",    "en": "What type of work do you need?",  "de": "Welche Art von Arbeit benötigen Sie?" },
+        "options": {
+          "reforma":       { "es": "Reforma integral",          "en": "Full renovation",           "de": "Komplettsanierung" },
+          "fachada":       { "es": "Rehabilitación de fachada", "en": "Facade rehabilitation",     "de": "Fassadensanierung" },
+          "construccion":  { "es": "Construcción de vivienda",  "en": "New home build",            "de": "Neubau" },
+          "mantenimiento": { "es": "Mantenimiento",             "en": "Maintenance",               "de": "Wartung" }
+        }
+      },
+      "surface": {
+        "label":    { "es": "Superficie",                              "en": "Surface area",                            "de": "Fläche" },
+        "question": { "es": "¿Qué superficie tiene el proyecto?",      "en": "What is the approximate surface area?",   "de": "Wie groß ist die Fläche?" },
+        "unit":     { "es": "m²",                                      "en": "m²",                                      "de": "m²" },
+        "hint":     { "es": "Puedes calcularlo después de la visita.", "en": "You can calculate this after a site visit.", "de": "Sie können dies nach einem Besichtigungstermin berechnen." }
+      },
+      "quality": {
+        "label":    { "es": "Calidad",                        "en": "Quality level",                    "de": "Qualitätsstufe" },
+        "question": { "es": "¿Qué acabados buscas?",          "en": "What quality level are you after?", "de": "Welche Qualitätsstufe wünschen Sie?" },
+        "options": {
+          "standard": { "es": "Estándar — funcional y duradero",          "en": "Standard — functional and durable",          "de": "Standard — funktional und langlebig" },
+          "premium":  { "es": "Premium — acabados de alta calidad",       "en": "Premium — high-quality finishes",            "de": "Premium — hochwertige Ausstattung" },
+          "luxury":   { "es": "Lujo — materiales y diseño superiores",    "en": "Luxury — superior materials and design",     "de": "Luxus — exklusive Materialien und Design" }
+        }
+      },
+      "location": {
+        "label":    { "es": "Ubicación",                      "en": "Location",                     "de": "Standort" },
+        "question": { "es": "¿Dónde está el inmueble?",       "en": "Where is the property?",        "de": "Wo befindet sich die Immobilie?" },
+        "options": {
+          "cadiz":   { "es": "Provincia de Cádiz",   "en": "Cádiz province",   "de": "Provinz Cádiz" },
+          "malaga":  { "es": "Provincia de Málaga",  "en": "Málaga province",  "de": "Provinz Málaga" },
+          "sevilla": { "es": "Provincia de Sevilla", "en": "Sevilla province", "de": "Provinz Sevilla" },
+          "other":   { "es": "Otra provincia",       "en": "Other province",   "de": "Andere Provinz" }
+        }
+      },
+      "contactInfo": {
+        "label":    { "es": "Tus datos",                          "en": "Your details",                         "de": "Ihre Daten" },
+        "question": { "es": "¿Dónde enviamos el presupuesto?",    "en": "Where should we send your estimate?",  "de": "Wohin sollen wir den Kostenvoranschlag senden?" }
+      }
+    },
+
+    "result": {
+      "title":      { "es": "Tu presupuesto orientativo",    "en": "Your estimated price range",     "de": "Ihr geschätzter Preisbereich" },
+      "disclaimer": {
+        "es": "Estimación orientativa. El presupuesto definitivo requiere visita técnica gratuita.",
+        "en": "Indicative estimate only. A final quote requires a free technical site visit.",
+        "de": "Unverbindliche Schätzung. Ein endgültiges Angebot erfordert einen kostenlosen Besichtigungstermin."
+      },
+      "cta": { "es": "Quiero un presupuesto exacto", "en": "Get an exact quote", "de": "Genaues Angebot anfordern" }
+    }
+  },
+
+  "chatbot": {
+    "widgetTitle":  { "es": "Asistente Serintsur",   "en": "Serintsur Assistant",    "de": "Serintsur-Assistent" },
+    "widgetSubtitle":{ "es": "Respuesta en segundos", "en": "Replies in seconds",     "de": "Antwortet in Sekunden" },
+    "placeholder":  { "es": "Escribe tu consulta...", "en": "Type your question...",  "de": "Ihre Frage..." },
+    "send":         { "es": "Enviar",                 "en": "Send",                   "de": "Senden" },
+    "open":         { "es": "Abrir chat",             "en": "Open chat",              "de": "Chat öffnen" },
+    "close":        { "es": "Cerrar chat",            "en": "Close chat",             "de": "Chat schließen" },
+    "typing":       { "es": "Escribiendo...",         "en": "Typing...",              "de": "Schreibt..." },
+    "greeting": {
+      "es": "¡Hola! Soy el asistente de Serintsur. ¿En qué puedo ayudarte con tu proyecto?",
+      "en": "Hi! I'm Serintsur's assistant. How can I help you with your project?",
+      "de": "Hallo! Ich bin der Serintsur-Assistent. Wie kann ich Ihnen bei Ihrem Projekt helfen?"
+    },
+    "quickReplies": {
+      "quote":    { "es": "Quiero un presupuesto",        "en": "I need a quote",              "de": "Ich möchte ein Angebot" },
+      "services": { "es": "¿Qué servicios ofrecéis?",    "en": "What services do you offer?", "de": "Welche Leistungen bieten Sie an?" },
+      "location": { "es": "¿Dónde trabajáis?",           "en": "Where do you operate?",       "de": "Wo arbeiten Sie?" },
+      "contact":  { "es": "Hablar con alguien",          "en": "Speak to someone",            "de": "Mit jemandem sprechen" }
+    },
+    "error": {
+      "es": "Lo siento, ha ocurrido un error. Por favor, inténtalo de nuevo.",
+      "en": "Sorry, something went wrong. Please try again.",
+      "de": "Es tut mir leid, es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+    },
+    "offline": {
+      "es": "Sin conexión. Comprueba tu internet e inténtalo de nuevo.",
+      "en": "No connection. Check your internet and try again.",
+      "de": "Keine Verbindung. Überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut."
+    }
+  },
+
+  "footer": {
+    "tagline": {
+      "es": "Construimos y rehabilitamos en Cádiz, Málaga y Sevilla desde 2018.",
+      "en": "Building and renovating across Cádiz, Málaga and Sevilla since 2018.",
+      "de": "Bauen und Sanieren in Cádiz, Málaga und Sevilla seit 2018."
+    },
+    "sections": {
+      "services": { "es": "Servicios",  "en": "Services",  "de": "Leistungen" },
+      "company":  { "es": "Empresa",    "en": "Company",   "de": "Unternehmen" },
+      "legal":    { "es": "Legal",      "en": "Legal",     "de": "Rechtliches" },
+      "contact":  { "es": "Contacto",  "en": "Contact",   "de": "Kontakt" }
+    },
+    "links": {
+      "privacy": { "es": "Política de privacidad", "en": "Privacy policy",  "de": "Datenschutzerklärung" },
+      "cookies": { "es": "Política de cookies",    "en": "Cookie policy",   "de": "Cookie-Richtlinie" },
+      "legal":   { "es": "Aviso legal",            "en": "Legal notice",    "de": "Impressum" },
+      "about":   { "es": "Sobre nosotros",         "en": "About us",        "de": "Über uns" }
+    },
+    "copyright": {
+      "es": "© {year} Serintsur Multiservicios S.L. — CIF B11945391",
+      "en": "© {year} Serintsur Multiservicios S.L. — CIF B11945391",
+      "de": "© {year} Serintsur Multiservicios S.L. — CIF B11945391"
+    },
+    "madeBy": {
+      "es": "Desarrollado por Cobitek",
+      "en": "Developed by Cobitek",
+      "de": "Entwickelt von Cobitek"
+    }
+  },
+
+  "header": {
+    "skipToContent":   { "es": "Saltar al contenido", "en": "Skip to content",   "de": "Zum Inhalt springen" },
+    "languageSelector":{ "es": "Idioma",              "en": "Language",          "de": "Sprache" }
+  },
+
+  "projects": {
+    "filter": {
+      "all":        { "es": "Todos",         "en": "All",          "de": "Alle" },
+      "byService":  { "es": "Por servicio",  "en": "By service",   "de": "Nach Leistung" },
+      "byProvince": { "es": "Por provincia", "en": "By province",  "de": "Nach Provinz" }
+    },
+    "meta": {
+      "year":     { "es": "Año",        "en": "Year",      "de": "Jahr" },
+      "location": { "es": "Ubicación",  "en": "Location",  "de": "Standort" },
+      "surface":  { "es": "Superficie", "en": "Area",      "de": "Fläche" },
+      "duration": { "es": "Duración",   "en": "Duration",  "de": "Dauer" },
+      "client":   { "es": "Cliente",    "en": "Client",    "de": "Auftraggeber" }
+    },
+    "status": {
+      "completed":   { "es": "Completado",  "en": "Completed",   "de": "Abgeschlossen" },
+      "in_progress": { "es": "En curso",    "en": "In progress", "de": "In Bearbeitung" },
+      "upcoming":    { "es": "Próximo",     "en": "Upcoming",    "de": "Demnächst" }
+    }
+  },
+
+  "stats": {
+    "projectsCompleted": { "es": "proyectos realizados",      "en": "projects completed",          "de": "abgeschlossene Projekte" },
+    "yearsExperience":   { "es": "años de experiencia",       "en": "years of experience",         "de": "Jahre Erfahrung" },
+    "teamMembers":       { "es": "profesionales en plantilla", "en": "professionals on our team",  "de": "Fachleute im Team" },
+    "provincesCovered":  { "es": "provincias de actuación",   "en": "provinces covered",           "de": "Provinzen" }
+  },
+
+  "accessibility": {
+    "logoAlt":      { "es": "Logo Serintsur Multiservicios", "en": "Serintsur Multiservicios logo", "de": "Logo Serintsur Multiservicios" },
+    "projectImage": { "es": "Imagen del proyecto",           "en": "Project image",                 "de": "Projektbild" },
+    "clientLogo":   { "es": "Logo del cliente",              "en": "Client logo",                   "de": "Kundenlogo" },
+    "loading":      { "es": "Cargando...",                   "en": "Loading...",                    "de": "Wird geladen..." },
+    "externalLink": { "es": "Se abre en nueva ventana",      "en": "Opens in new window",           "de": "Öffnet in neuem Fenster" },
+    "beforeAfter":  { "es": "Imagen antes / después",        "en": "Before / after image",          "de": "Vorher-/Nachher-Bild" }
+  },
+
+  "errors": {
+    "notFound": {
+      "title": { "es": "Página no encontrada", "en": "Page not found",         "de": "Seite nicht gefunden" },
+      "body": {
+        "es": "La página que buscas no existe. Vuelve al inicio o contáctanos.",
+        "en": "The page you're looking for doesn't exist. Go back home or contact us.",
+        "de": "Die gesuchte Seite existiert nicht. Gehen Sie zurück zur Startseite oder kontaktieren Sie uns."
+      },
+      "cta": { "es": "Volver al inicio", "en": "Back to home", "de": "Zurück zur Startseite" }
+    },
+    "serverError": {
+      "title": { "es": "Algo salió mal",    "en": "Something went wrong",       "de": "Etwas ist schiefgelaufen" },
+      "body": {
+        "es": "Ha ocurrido un error inesperado. Por favor, recarga la página.",
+        "en": "An unexpected error occurred. Please reload the page.",
+        "de": "Ein unerwarteter Fehler ist aufgetreten. Bitte laden Sie die Seite neu."
+      },
+      "reload": { "es": "Recargar página", "en": "Reload page", "de": "Seite neu laden" }
+    }
+  }
+}
