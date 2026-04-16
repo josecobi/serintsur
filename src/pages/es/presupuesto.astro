@@ -1,0 +1,34 @@
+---
+// Quote estimator page (Spanish).
+//
+// Backend-owned placeholder: mounts the Estimator React island so the flow is
+// reachable end-to-end. The Designer replaces the HTML shell / adds hero +
+// surrounding page chrome; the `<Estimator />` mount should survive the
+// redesign as-is.
+import Chatbot from '~/components/chatbot/Chatbot';
+import Estimator from '~/components/estimator/Estimator';
+import { getStrings } from '~/lib/i18n';
+import '~/styles/global.css';
+
+const t = getStrings('es');
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{t.estimator.heading} — Serintsur</title>
+    <meta name="description" content={t.estimator.subheading} />
+  </head>
+  <body class="bg-gray-100 min-h-screen">
+    <main class="py-8">
+      <header class="max-w-2xl mx-auto px-4 mb-6 text-center">
+        <h1 class="text-3xl sm:text-4xl font-semibold">{t.estimator.heading}</h1>
+        <p class="mt-2 text-gray-600">{t.estimator.subheading}</p>
+      </header>
+      <Estimator client:load language="es" />
+    </main>
+    <Chatbot client:idle language="es" />
+  </body>
+</html>

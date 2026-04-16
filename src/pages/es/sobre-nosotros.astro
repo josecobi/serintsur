@@ -1,0 +1,97 @@
+---
+// About page (Spanish).
+//
+// Data comes from two Sanity documents:
+//   - `siteSettings` → company stats (projectsCompleted, yearsExperience, etc.)
+//   - `page` with slug "sobre-nosotros" → long-form body content
+// Either can be missing without breaking the page.
+
+import Chatbot from '~/components/chatbot/Chatbot';
+import { getStrings } from '~/lib/i18n';
+import { renderPortableText } from '~/lib/portable-text';
+import { getPageBySlug, getSiteSettings, pickLocale } from '~/lib/sanity';
+import '~/styles/global.css';
+
+const locale = 'es';
+const t = getStrings(locale);
+
+const [siteSettings, page] = await Promise.all([
+  getSiteSettings().catch((e) => {
+    console.error('[sobre-nosotros] siteSettings fetch failed:', e);
+    return null;
+  }),
+  getPageBySlug('sobre-nosotros').catch((e) => {
+    console.error('[sobre-nosotros] page fetch failed:', e);
+    return null;
+  }),
+]);
+
+const title = pickLocale(page?.title, locale) ?? t.nav.about;
+const body = pickLocale(page?.body, locale);
+const bodyHtml = renderPortableText(body);
+const stats = siteSettings?.stats;
+const metaTitle = pickLocale(page?.seo?.metaTitle, locale) ?? title;
+const metaDescription =
+  pickLocale(page?.seo?.metaDescription, locale) ?? t.site.descriptionShort;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{metaTitle} — {t.site.name}</title>
+    <meta name="description" content={metaDescription} />
+    {page?.seo?.noIndex && <meta name="robots" content="noindex" />}
+  </head>
+  <body class="bg-white min-h-screen">
+    <main class="about-root">
+      <header class="about-hero max-w-3xl mx-auto px-4 py-8">
+        <h1 class="about-title text-3xl sm:text-4xl font-semibold">{title}</h1>
+      </header>
+
+      {stats && (
+        <section class="about-stats max-w-3xl mx-auto px-4 py-6 border-t border-gray-200">
+          <dl class="about-stats-grid grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+            {stats.projectsCompleted !== undefined && (
+              <div class="about-stat">
+                <dt class="text-sm text-gray-600">Proyectos</dt>
+                <dd class="text-2xl font-semibold">{stats.projectsCompleted}</dd>
+              </div>
+            )}
+            {stats.yearsExperience !== undefined && (
+              <div class="about-stat">
+                <dt class="text-sm text-gray-600">Años</dt>
+                <dd class="text-2xl font-semibold">{stats.yearsExperience}</dd>
+              </div>
+            )}
+            {stats.teamSize !== undefined && (
+              <div class="about-stat">
+                <dt class="text-sm text-gray-600">Equipo</dt>
+                <dd class="text-2xl font-semibold">{stats.teamSize}</dd>
+              </div>
+            )}
+            {stats.citiesCovered !== undefined && (
+              <div class="about-stat">
+                <dt class="text-sm text-gray-600">Ciudades</dt>
+                <dd class="text-2xl font-semibold">{stats.citiesCovered}</dd>
+              </div>
+            )}
+          </dl>
+        </section>
+      )}
+
+      {bodyHtml ? (
+        <section
+          class="about-body prose prose-sm sm:prose max-w-3xl mx-auto px-4 py-8"
+          set:html={bodyHtml}
+        />
+      ) : (
+        <section class="about-body max-w-3xl mx-auto px-4 py-8">
+          <p class="text-gray-500">{t.site.descriptionShort}</p>
+        </section>
+      )}
+    </main>
+    <Chatbot client:idle language={locale} />
+  </body>
+</html>

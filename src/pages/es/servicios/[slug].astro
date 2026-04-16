@@ -1,0 +1,154 @@
+---
+// Service detail page (Spanish).
+//
+// `getStaticPaths` enumerates every active service by slug so Astro builds
+// one route per service at build time. The page resolves the service, renders
+// the portable-text body (if any), and shows the projects that reference this
+// service via `getProjects({ serviceId })`.
+
+import type { GetStaticPaths } from 'astro';
+
+import Chatbot from '~/components/chatbot/Chatbot';
+import { projectsToCardData } from '~/components/project-filter/mapper';
+import { getStrings } from '~/lib/i18n';
+import { renderPortableText } from '~/lib/portable-text';
+import {
+  getAllServiceSlugs,
+  getProjects,
+  getServiceBySlug,
+  pickLocale,
+  urlForImage,
+} from '~/lib/sanity';
+import '~/styles/global.css';
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  try {
+    const slugs = await getAllServiceSlugs();
+    return slugs.map((slug) => ({ params: { slug } }));
+  } catch (error) {
+    console.error('[servicios/[slug]] getStaticPaths failed:', error);
+    return [];
+  }
+};
+
+const locale = 'es';
+const t = getStrings(locale);
+const { slug } = Astro.params;
+
+if (!slug) return Astro.redirect(`/${locale}/servicios`);
+const slugString = String(slug);
+
+const service = await getServiceBySlug(slugString).catch((e) => {
+  console.error('[servicios/[slug]] fetch failed:', e);
+  return null;
+});
+
+if (!service) return new Response('Not found', { status: 404 });
+
+const projectsRaw = await getProjects({ serviceId: service._id }).catch((e) => {
+  console.error('[servicios/[slug]] projects fetch failed:', e);
+  return [];
+});
+const projects = projectsToCardData(projectsRaw, locale);
+
+const title = pickLocale(service.title, locale) ?? '';
+const description = pickLocale(service.description, locale);
+const body = pickLocale(service.body, locale);
+const bodyHtml = renderPortableText(body);
+const heroUrl = service.heroImage
+  ? urlForImage(service.heroImage).width(1600).url()
+  : undefined;
+
+const metaTitle = pickLocale(service.seo?.metaTitle, locale) ?? title;
+const metaDescription =
+  pickLocale(service.seo?.metaDescription, locale) ?? description ?? t.site.descriptionShort;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{metaTitle} — {t.site.name}</title>
+    <meta name="description" content={metaDescription} />
+    {service.seo?.noIndex && <meta name="robots" content="noindex" />}
+  </head>
+  <body class="bg-white min-h-screen">
+    <main class="service-root">
+      <header class="service-hero max-w-3xl mx-auto px-4 py-8">
+        <h1 class="service-title text-3xl sm:text-4xl font-semibold">{title}</h1>
+        {description && <p class="service-description mt-3 text-lg text-gray-700">{description}</p>}
+        <div class="service-ctas mt-5 flex flex-wrap gap-3">
+          <a href={`/${locale}/presupuesto`} class="service-cta-primary bg-gray-900 text-white rounded-md px-4 py-2 text-sm">
+            {t.common.requestQuote}
+          </a>
+          <a href={`/${locale}/contacto`} class="service-cta-secondary border border-gray-300 rounded-md px-4 py-2 text-sm">
+            {t.nav.contact}
+          </a>
+        </div>
+      </header>
+
+      {heroUrl && (
+        <div class="service-hero-image max-w-5xl mx-auto px-4">
+          <img
+            src={heroUrl}
+            alt={title}
+            class="w-full h-auto rounded-lg"
+            loading="lazy"
+          />
+        </div>
+      )}
+
+      {bodyHtml && (
+        <section
+          class="service-body prose prose-sm sm:prose max-w-3xl mx-auto px-4 py-8"
+          set:html={bodyHtml}
+        />
+      )}
+
+      {service.features && service.features.length > 0 && (
+        <section class="service-features max-w-3xl mx-auto px-4 py-6 border-t border-gray-200">
+          <h2 class="service-section-title text-xl font-semibold mb-4">Incluye</h2>
+          <ul class="service-features-list grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+            {service.features.map((feature) => {
+              const label = pickLocale(feature, locale);
+              return label ? <li class="service-feature">• {label}</li> : null;
+            })}
+          </ul>
+        </section>
+      )}
+
+      {projects.length > 0 && (
+        <section class="service-projects max-w-5xl mx-auto px-4 py-10 border-t border-gray-200">
+          <h2 class="service-section-title text-2xl font-semibold mb-5">{t.nav.projects}</h2>
+          <ul class="service-projects-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {projects.map((project) => (
+              <li class="service-project-card">
+                <a
+                  href={`/${locale}/proyectos/${project.slug}`}
+                  class="block border border-gray-200 rounded-lg overflow-hidden hover:border-gray-900"
+                >
+                  <div class="aspect-[4/3] bg-gray-100 overflow-hidden">
+                    {project.imageUrl && (
+                      <img
+                        src={project.imageUrl}
+                        alt={project.imageAlt ?? project.title}
+                        loading="lazy"
+                        class="w-full h-full object-cover"
+                      />
+                    )}
+                  </div>
+                  <div class="p-3">
+                    <h3 class="font-semibold text-sm line-clamp-2">{project.title}</h3>
+                    {project.year && <p class="text-xs text-gray-500 mt-1">{project.year}</p>}
+                  </div>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </main>
+    <Chatbot client:idle language={locale} />
+  </body>
+</html>
