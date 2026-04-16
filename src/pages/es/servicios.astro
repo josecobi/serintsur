@@ -1,0 +1,82 @@
+---
+// Services listing page (Spanish).
+//
+// Backend-owned placeholder: fetches all active services and renders a minimal
+// grid. Each card links to the service detail page. Designer replaces the
+// visual shell; `.services-*` class hooks remain stable.
+
+import Chatbot from '~/components/chatbot/Chatbot';
+import { getStrings } from '~/lib/i18n';
+import { getActiveServices, pickLocale, urlForImage } from '~/lib/sanity';
+import '~/styles/global.css';
+
+const locale = 'es';
+const t = getStrings(locale);
+
+let services: Awaited<ReturnType<typeof getActiveServices>> = [];
+try {
+  services = await getActiveServices();
+} catch (error) {
+  console.error('[servicios] failed to fetch services:', error);
+}
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{t.nav.services} — {t.site.name}</title>
+    <meta name="description" content={t.site.descriptionShort} />
+  </head>
+  <body class="bg-white min-h-screen">
+    <main class="services-root py-8">
+      <header class="max-w-5xl mx-auto px-4 mb-6">
+        <h1 class="services-title text-3xl sm:text-4xl font-semibold">{t.nav.services}</h1>
+      </header>
+      <div class="max-w-5xl mx-auto px-4">
+        {services.length === 0 ? (
+          <p class="text-gray-500">—</p>
+        ) : (
+          <ul class="services-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {services.map((service) => {
+              const title = pickLocale(service.title, locale) ?? '';
+              const description = pickLocale(service.description, locale);
+              const heroUrl = service.heroImage
+                ? urlForImage(service.heroImage).width(800).url()
+                : undefined;
+              return (
+                <li class="services-card">
+                  <a
+                    href={`/${locale}/servicios/${service.slug.current}`}
+                    class="services-card-link group block border border-gray-200 rounded-lg overflow-hidden hover:border-gray-900 transition-colors"
+                  >
+                    <div class="services-card-media aspect-[4/3] bg-gray-100 overflow-hidden">
+                      {heroUrl && (
+                        <img
+                          src={heroUrl}
+                          alt={title}
+                          loading="lazy"
+                          class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform"
+                        />
+                      )}
+                    </div>
+                    <div class="services-card-body p-4">
+                      <h2 class="services-card-title font-semibold text-base mb-1">{title}</h2>
+                      {description && (
+                        <p class="services-card-desc text-sm text-gray-600 line-clamp-3">
+                          {description}
+                        </p>
+                      )}
+                    </div>
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+    </main>
+    <Chatbot client:idle language={locale} />
+  </body>
+</html>

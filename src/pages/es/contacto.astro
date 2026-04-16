@@ -1,0 +1,109 @@
+---
+// Contact page (Spanish).
+//
+// Renders contact info from `siteSettings` (phone, email, address, WhatsApp,
+// social links) and mounts the ContactForm island, which posts to /api/contact.
+// Backend-owned data wiring; Designer replaces the visual shell.
+
+import ContactForm from '~/components/contact-form/ContactForm';
+import Chatbot from '~/components/chatbot/Chatbot';
+import { getStrings } from '~/lib/i18n';
+import { getSiteSettings, pickLocale } from '~/lib/sanity';
+import { WHATSAPP_NUMBER, buildWhatsAppLink } from '~/lib/whatsapp';
+import '~/styles/global.css';
+
+const locale = 'es';
+const t = getStrings(locale);
+
+const siteSettings = await getSiteSettings().catch((e) => {
+  console.error('[contacto] siteSettings fetch failed:', e);
+  return null;
+});
+
+const phone = siteSettings?.phone ?? '+34 655 634 800';
+const email = siteSettings?.email ?? 'info@serintsur.com';
+const address = siteSettings?.address;
+const whatsappNumber = siteSettings?.whatsappNumber ?? WHATSAPP_NUMBER;
+const whatsappUrl = buildWhatsAppLink(
+  'Hola, me gustaría más información.',
+  whatsappNumber,
+);
+const tagline = pickLocale(siteSettings?.tagline, locale) ?? t.site.tagline;
+const social = siteSettings?.socialLinks;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{t.nav.contact} — {t.site.name}</title>
+    <meta name="description" content={t.contact.subheading} />
+  </head>
+  <body class="bg-white min-h-screen">
+    <main class="contact-root">
+      <header class="contact-hero max-w-5xl mx-auto px-4 py-8">
+        <h1 class="contact-title text-3xl sm:text-4xl font-semibold">{t.contact.heading}</h1>
+        <p class="contact-subheading mt-3 text-lg text-gray-700">{t.contact.subheading}</p>
+      </header>
+
+      <div class="contact-main max-w-5xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
+        <section class="contact-form-wrapper">
+          <ContactForm client:load language={locale} source="contact" />
+        </section>
+
+        <aside class="contact-info border border-gray-200 rounded-lg p-4 text-sm self-start">
+          <p class="text-gray-700 mb-4">{tagline}</p>
+          <dl class="space-y-3">
+            <div>
+              <dt class="text-gray-500">{t.footer.phone}</dt>
+              <dd class="font-medium">
+                <a href={`tel:${phone.replace(/\s+/g, '')}`} class="underline">{phone}</a>
+              </dd>
+            </div>
+            <div>
+              <dt class="text-gray-500">{t.footer.email}</dt>
+              <dd class="font-medium">
+                <a href={`mailto:${email}`} class="underline">{email}</a>
+              </dd>
+            </div>
+            {address && (
+              <div>
+                <dt class="text-gray-500">{t.footer.address}</dt>
+                <dd class="font-medium">{address}</dd>
+              </div>
+            )}
+            <div>
+              <dt class="text-gray-500">WhatsApp</dt>
+              <dd class="font-medium">
+                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" class="underline">
+                  {t.common.chatWhatsApp}
+                </a>
+              </dd>
+            </div>
+          </dl>
+          {social && (social.instagram || social.facebook || social.linkedin || social.google) && (
+            <div class="contact-social mt-4 pt-4 border-t border-gray-200">
+              <div class="text-gray-500 mb-1">{t.footer.followUs}</div>
+              <ul class="flex gap-3 text-sm">
+                {social.instagram && (
+                  <li><a href={social.instagram} target="_blank" rel="noopener noreferrer" class="underline">Instagram</a></li>
+                )}
+                {social.facebook && (
+                  <li><a href={social.facebook} target="_blank" rel="noopener noreferrer" class="underline">Facebook</a></li>
+                )}
+                {social.linkedin && (
+                  <li><a href={social.linkedin} target="_blank" rel="noopener noreferrer" class="underline">LinkedIn</a></li>
+                )}
+                {social.google && (
+                  <li><a href={social.google} target="_blank" rel="noopener noreferrer" class="underline">Google</a></li>
+                )}
+              </ul>
+            </div>
+          )}
+        </aside>
+      </div>
+    </main>
+    <Chatbot client:idle language={locale} />
+  </body>
+</html>
