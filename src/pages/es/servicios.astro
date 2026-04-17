@@ -1,14 +1,16 @@
 ---
-// Services listing page (Spanish).
-//
-// Backend-owned placeholder: fetches all active services and renders a minimal
-// grid. Each card links to the service detail page. Designer replaces the
-// visual shell; `.services-*` class hooks remain stable.
+/*
+  Services listing page (Spanish).
 
-import Chatbot from '~/components/chatbot/Chatbot';
+  Designer pass: wraps Backend's Sanity fetch in BaseLayout and renders service
+  cards using design-system primitives. Sanity outage → friendly empty state.
+*/
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Container from '~/components/ui/Container.astro';
+import SectionHeading from '~/components/ui/SectionHeading.astro';
+import CtaBanner from '~/components/sections/CtaBanner.astro';
 import { getStrings } from '~/lib/i18n';
-import { getActiveServices, pickLocale, safeImageUrl } from '~/lib/sanity';
-import '~/styles/global.css';
+import { getActiveServices, pickLocale, urlForImage } from '~/lib/sanity';
 
 const locale = 'es';
 const t = getStrings(locale);
@@ -21,60 +23,107 @@ try {
 }
 ---
 
-<!doctype html>
-<html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{t.nav.services} — {t.site.name}</title>
-    <meta name="description" content={t.site.descriptionShort} />
-  </head>
-  <body class="bg-white min-h-screen">
-    <main class="services-root py-8">
-      <header class="max-w-5xl mx-auto px-4 mb-6">
-        <h1 class="services-title text-3xl sm:text-4xl font-semibold">{t.nav.services}</h1>
-      </header>
-      <div class="max-w-5xl mx-auto px-4">
-        {services.length === 0 ? (
-          <p class="text-gray-500">—</p>
-        ) : (
-          <ul class="services-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {services.map((service) => {
-              const title = pickLocale(service.title, locale) ?? '';
-              const description = pickLocale(service.description, locale);
-              const heroUrl = safeImageUrl(service.heroImage, 800);
-              return (
-                <li class="services-card">
-                  <a
-                    href={`/${locale}/servicios/${service.slug.current}`}
-                    class="services-card-link group block border border-gray-200 rounded-lg overflow-hidden hover:border-gray-900 transition-colors"
-                  >
-                    <div class="services-card-media aspect-[4/3] bg-gray-100 overflow-hidden">
-                      {heroUrl && (
-                        <img
-                          src={heroUrl}
-                          alt={title}
-                          loading="lazy"
-                          class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform"
-                        />
-                      )}
-                    </div>
-                    <div class="services-card-body p-4">
-                      <h2 class="services-card-title font-semibold text-base mb-1">{title}</h2>
-                      {description && (
-                        <p class="services-card-desc text-sm text-gray-600 line-clamp-3">
-                          {description}
-                        </p>
-                      )}
-                    </div>
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </div>
-    </main>
-    <Chatbot client:idle language={locale} />
-  </body>
-</html>
+<BaseLayout
+  title={`${t.nav.services} — ${t.site.name}`}
+  description={t.site.descriptionShort}
+  lang={locale}
+>
+  <!-- Page header band on offwhite -->
+  <section class="bg-offwhite">
+    <Container width="wide" padY="lg">
+      <SectionHeading
+        eyebrow="Servicios"
+        title={t.nav.services}
+        subtitle="Cubrimos todo el ciclo de la edificación: desde la rehabilitación de fachadas hasta la construcción de villas, pasando por reformas integrales y mantenimiento de edificios."
+        level="h1"
+      />
+    </Container>
+  </section>
+
+  <section class="bg-white">
+    <Container width="wide" padY="lg">
+      {services.length === 0 ? (
+        <div class="rounded-lg border border-sand-200 bg-sand-50 p-10 text-center">
+          <p class="font-display text-lg font-semibold text-navy">
+            Estamos preparando el catálogo de servicios.
+          </p>
+          <p class="mt-2 text-sm text-sand-700">
+            Mientras tanto, puedes{' '}
+            <a href={`/${locale}/contacto/`} class="font-semibold text-orange underline decoration-2 underline-offset-4 hover:text-orange-dark">
+              contactarnos directamente
+            </a>
+            .
+          </p>
+        </div>
+      ) : (
+        <ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {services.map((service) => {
+            const title = pickLocale(service.title, locale) ?? '';
+            const description = pickLocale(service.description, locale);
+            const heroUrl = service.heroImage
+              ? urlForImage(service.heroImage).width(900).url()
+              : undefined;
+            const href = `/${locale}/servicios/${service.slug.current}/`;
+            return (
+              <li>
+                <a
+                  href={href}
+                  aria-label={`${title} — ${t.common.readMore}`}
+                  class="group flex h-full flex-col overflow-hidden rounded-lg border border-sand-200 bg-white transition-all duration-300 ease-out hover:-translate-y-1 hover:border-navy hover:shadow-lg focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-2"
+                >
+                  <div class="relative aspect-[4/3] overflow-hidden bg-sand-100">
+                    {heroUrl ? (
+                      <img
+                        src={heroUrl}
+                        alt={title}
+                        loading="lazy"
+                        decoding="async"
+                        class="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+                      />
+                    ) : (
+                      <div class="flex h-full w-full items-center justify-center bg-navy/5">
+                        <span class="font-display text-3xl font-bold text-navy/30">
+                          {title.charAt(0)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <div class="flex flex-1 flex-col p-6">
+                    <h2 class="font-display text-xl font-semibold text-navy">
+                      {title}
+                    </h2>
+                    {description && (
+                      <p class="mt-3 flex-1 text-sm leading-relaxed text-sand-700">
+                        {description}
+                      </p>
+                    )}
+                    <span class="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-navy transition-colors group-hover:text-orange">
+                      {t.common.readMore}
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="transition-transform duration-200 group-hover:translate-x-1">
+                        <path d="M5 12h14"/>
+                        <path d="m12 5 7 7-7 7"/>
+                      </svg>
+                    </span>
+                  </div>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </Container>
+  </section>
+
+  <CtaBanner
+    eyebrow="¿No encuentras tu servicio?"
+    title="Cuéntanos tu proyecto"
+    subtitle="Cada obra tiene matices. Escríbenos y te proponemos el mejor camino."
+    primaryCta={{ label: t.common.requestQuote, href: `/${locale}/presupuesto/` }}
+    secondaryCta={{
+      label: t.common.chatWhatsApp,
+      href: 'https://wa.me/34655634800',
+      variant: 'whatsapp',
+    }}
+    variant="card"
+  />
+</BaseLayout>

@@ -1,14 +1,18 @@
 ---
-// Service detail page (Spanish).
-//
-// `getStaticPaths` enumerates every active service by slug so Astro builds
-// one route per service at build time. The page resolves the service, renders
-// the portable-text body (if any), and shows the projects that reference this
-// service via `getProjects({ serviceId })`.
+/*
+  Service detail page (Spanish).
 
+  Designer pass: wraps Backend's getServiceBySlug+getProjects in BaseLayout and
+  renders body Portable Text + feature list + related projects in design-system
+  styling. All text comes from Sanity; UI chrome from `t`.
+*/
 import type { GetStaticPaths } from 'astro';
 
-import Chatbot from '~/components/chatbot/Chatbot';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Container from '~/components/ui/Container.astro';
+import Button from '~/components/ui/Button.astro';
+import Badge from '~/components/ui/Badge.astro';
+import CtaBanner from '~/components/sections/CtaBanner.astro';
 import { projectsToCardData } from '~/components/project-filter/mapper';
 import { getStrings } from '~/lib/i18n';
 import { renderPortableText } from '~/lib/portable-text';
@@ -17,9 +21,8 @@ import {
   getProjects,
   getServiceBySlug,
   pickLocale,
-  safeImageUrl,
+  urlForImage,
 } from '~/lib/sanity';
-import '~/styles/global.css';
 
 export const getStaticPaths: GetStaticPaths = async () => {
   try {
@@ -35,7 +38,7 @@ const locale = 'es';
 const t = getStrings(locale);
 const { slug } = Astro.params;
 
-if (!slug) return Astro.redirect(`/${locale}/servicios`);
+if (!slug) return Astro.redirect(`/${locale}/servicios/`);
 const slugString = String(slug);
 
 const service = await getServiceBySlug(slugString).catch((e) => {
@@ -55,98 +58,210 @@ const title = pickLocale(service.title, locale) ?? '';
 const description = pickLocale(service.description, locale);
 const body = pickLocale(service.body, locale);
 const bodyHtml = renderPortableText(body);
-const heroUrl = safeImageUrl(service.heroImage, 1600);
+const heroUrl = service.heroImage
+  ? urlForImage(service.heroImage).width(1920).url()
+  : undefined;
 
 const metaTitle = pickLocale(service.seo?.metaTitle, locale) ?? title;
 const metaDescription =
   pickLocale(service.seo?.metaDescription, locale) ?? description ?? t.site.descriptionShort;
 ---
 
-<!doctype html>
-<html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{metaTitle} — {t.site.name}</title>
-    <meta name="description" content={metaDescription} />
-    {service.seo?.noIndex && <meta name="robots" content="noindex" />}
-  </head>
-  <body class="bg-white min-h-screen">
-    <main class="service-root">
-      <header class="service-hero max-w-3xl mx-auto px-4 py-8">
-        <h1 class="service-title text-3xl sm:text-4xl font-semibold">{title}</h1>
-        {description && <p class="service-description mt-3 text-lg text-gray-700">{description}</p>}
-        <div class="service-ctas mt-5 flex flex-wrap gap-3">
-          <a href={`/${locale}/presupuesto`} class="service-cta-primary bg-gray-900 text-white rounded-md px-4 py-2 text-sm">
-            {t.common.requestQuote}
-          </a>
-          <a href={`/${locale}/contacto`} class="service-cta-secondary border border-gray-300 rounded-md px-4 py-2 text-sm">
-            {t.nav.contact}
-          </a>
-        </div>
-      </header>
-
-      {heroUrl && (
-        <div class="service-hero-image max-w-5xl mx-auto px-4">
-          <img
-            src={heroUrl}
-            alt={title}
-            class="w-full h-auto rounded-lg"
-            loading="lazy"
-          />
-        </div>
-      )}
-
-      {bodyHtml && (
-        <section
-          class="service-body prose prose-sm sm:prose max-w-3xl mx-auto px-4 py-8"
-          set:html={bodyHtml}
+<BaseLayout
+  title={`${metaTitle} — ${t.site.name}`}
+  description={metaDescription}
+  noindex={service.seo?.noIndex}
+  lang={locale}
+>
+  <!-- Hero: navy with optional hero image overlay -->
+  <section class="relative isolate overflow-hidden bg-navy text-white">
+    <div class="absolute inset-0 -z-10" aria-hidden="true">
+      {heroUrl ? (
+        <img
+          src={heroUrl}
+          alt={title}
+          class="h-full w-full object-cover"
+          fetchpriority="high"
+          loading="eager"
+          decoding="async"
         />
+      ) : (
+        <div class="h-full w-full bg-[radial-gradient(circle_at_70%_30%,theme(colors.navy-light)_0%,theme(colors.navy)_50%,theme(colors.navy-dark)_100%)]" />
       )}
+      <div class="absolute inset-0 bg-gradient-to-r from-navy-dark/95 via-navy/75 to-navy/40 md:from-navy-dark/90 md:via-navy/65 md:to-navy/20" />
+    </div>
 
-      {service.features && service.features.length > 0 && (
-        <section class="service-features max-w-3xl mx-auto px-4 py-6 border-t border-gray-200">
-          <h2 class="service-section-title text-xl font-semibold mb-4">Incluye</h2>
-          <ul class="service-features-list grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-            {service.features.map((feature) => {
-              const label = pickLocale(feature, locale);
-              return label ? <li class="service-feature">• {label}</li> : null;
-            })}
-          </ul>
-        </section>
-      )}
+    <Container width="wide" padY="xl">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex flex-wrap items-center gap-2 text-xs text-white/60">
+          <li>
+            <a href={`/${locale}/`} class="hover:text-white focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-2 rounded-sm">
+              {t.nav.home}
+            </a>
+          </li>
+          <li aria-hidden="true">/</li>
+          <li>
+            <a href={`/${locale}/servicios/`} class="hover:text-white focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-2 rounded-sm">
+              {t.nav.services}
+            </a>
+          </li>
+          <li aria-hidden="true">/</li>
+          <li class="text-white/90">{title}</li>
+        </ol>
+      </nav>
 
-      {projects.length > 0 && (
-        <section class="service-projects max-w-5xl mx-auto px-4 py-10 border-t border-gray-200">
-          <h2 class="service-section-title text-2xl font-semibold mb-5">{t.nav.projects}</h2>
-          <ul class="service-projects-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {projects.map((project) => (
-              <li class="service-project-card">
-                <a
-                  href={`/${locale}/proyectos/${project.slug}`}
-                  class="block border border-gray-200 rounded-lg overflow-hidden hover:border-gray-900"
-                >
-                  <div class="aspect-[4/3] bg-gray-100 overflow-hidden">
-                    {project.imageUrl && (
-                      <img
-                        src={project.imageUrl}
-                        alt={project.imageAlt ?? project.title}
-                        loading="lazy"
-                        class="w-full h-full object-cover"
-                      />
+      <div class="max-w-2xl py-8 md:py-12">
+        <div class="mb-5 flex items-center gap-3">
+          <span class="h-[3px] w-10 rounded-sm bg-orange" aria-hidden="true" />
+          <span class="font-sans text-xs font-semibold uppercase tracking-[0.1em] text-orange-light">
+            {t.nav.services}
+          </span>
+        </div>
+        <h1 class="font-display text-h1 font-bold text-white">{title}</h1>
+        {description && (
+          <p class="mt-5 max-w-xl text-lg leading-relaxed text-white/80">
+            {description}
+          </p>
+        )}
+        <div class="mt-8 flex flex-wrap items-center gap-3">
+          <Button variant="primary" size="lg" href={`/${locale}/presupuesto/`}>
+            {t.common.requestQuote}
+          </Button>
+          <Button
+            variant="outline"
+            size="lg"
+            href={`/${locale}/contacto/`}
+            class="border-white/40 text-white hover:bg-white hover:text-navy"
+          >
+            {t.nav.contact}
+          </Button>
+        </div>
+      </div>
+    </Container>
+  </section>
+
+  <!-- Body + features -->
+  {(bodyHtml || (service.features && service.features.length > 0)) && (
+    <section class="bg-white">
+      <Container width="narrow" padY="lg">
+        <div class="grid gap-12 lg:grid-cols-12 lg:gap-16">
+          {bodyHtml && (
+            <div class="lg:col-span-8">
+              <div
+                class="prose max-w-none prose-headings:font-display prose-headings:text-navy prose-a:text-orange prose-a:no-underline prose-a:font-semibold hover:prose-a:underline prose-strong:text-navy prose-img:rounded-lg"
+                set:html={bodyHtml}
+              />
+            </div>
+          )}
+          {service.features && service.features.length > 0 && (
+            <aside class="lg:col-span-4">
+              <div class="rounded-xl border border-sand-200 bg-offwhite p-6 lg:sticky lg:top-24">
+                <h2 class="font-display text-sm font-semibold uppercase tracking-[0.08em] text-orange">
+                  Incluye
+                </h2>
+                <ul class="mt-5 space-y-3">
+                  {service.features.map((feature) => {
+                    const label = pickLocale(feature, locale);
+                    return label ? (
+                      <li class="flex items-start gap-3 text-sm text-sand-900">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mt-0.5 shrink-0 text-orange" aria-hidden="true">
+                          <path d="M20 6 9 17l-5-5"/>
+                        </svg>
+                        <span>{label}</span>
+                      </li>
+                    ) : null;
+                  })}
+                </ul>
+              </div>
+            </aside>
+          )}
+        </div>
+      </Container>
+    </section>
+  )}
+
+  <!-- Related projects -->
+  {projects.length > 0 && (
+    <section class="bg-offwhite">
+      <Container width="wide" padY="lg">
+        <div class="mb-10 flex items-end justify-between gap-4">
+          <div>
+            <div class="mb-3 flex items-center gap-3">
+              <span class="h-[3px] w-10 rounded-sm bg-orange" aria-hidden="true" />
+              <span class="font-sans text-xs font-semibold uppercase tracking-[0.08em] text-orange">
+                Obra relacionada
+              </span>
+            </div>
+            <h2 class="font-display text-h2 font-bold text-navy">
+              {t.nav.projects}
+            </h2>
+          </div>
+          <a
+            href={`/${locale}/proyectos/`}
+            class="hidden shrink-0 items-center gap-2 rounded-sm text-sm font-semibold text-navy transition-colors hover:text-orange focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-2 md:inline-flex"
+          >
+            {t.common.seeAll}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14"/>
+              <path d="m12 5 7 7-7 7"/>
+            </svg>
+          </a>
+        </div>
+        <ul class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {projects.slice(0, 6).map((project) => (
+            <li>
+              <a
+                href={`/${locale}/proyectos/${project.slug}/`}
+                class="group block overflow-hidden rounded-lg bg-navy focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-4"
+                aria-label={project.title}
+              >
+                <div class="relative aspect-[4/3] overflow-hidden">
+                  {project.imageUrl ? (
+                    <img
+                      src={project.imageUrl}
+                      alt={project.imageAlt ?? project.title}
+                      loading="lazy"
+                      decoding="async"
+                      class="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+                    />
+                  ) : (
+                    <div class="h-full w-full bg-[linear-gradient(135deg,theme(colors.navy-light),theme(colors.navy-dark))]" />
+                  )}
+                  <div class="absolute inset-0 bg-gradient-to-t from-navy-dark/85 via-navy/20 to-transparent" aria-hidden="true"></div>
+                  {project.province && (
+                    <div class="absolute left-4 top-4">
+                      <Badge variant="navy" size="sm">{project.province}</Badge>
+                    </div>
+                  )}
+                  <div class="absolute inset-x-0 bottom-0 p-5">
+                    <h3 class="font-display text-lg font-bold text-white">
+                      {project.title}
+                    </h3>
+                    {(project.city || project.year) && (
+                      <p class="mt-1 text-xs text-white/75">
+                        {[project.city, project.year].filter(Boolean).join(' · ')}
+                      </p>
                     )}
                   </div>
-                  <div class="p-3">
-                    <h3 class="font-semibold text-sm line-clamp-2">{project.title}</h3>
-                    {project.year && <p class="text-xs text-gray-500 mt-1">{project.year}</p>}
-                  </div>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-    </main>
-    <Chatbot client:idle language={locale} />
-  </body>
-</html>
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </Container>
+    </section>
+  )}
+
+  <CtaBanner
+    eyebrow={`Servicio: ${title}`}
+    title="¿Listo para empezar tu proyecto?"
+    subtitle="Pide presupuesto sin compromiso o habla por WhatsApp con Jorge directamente."
+    primaryCta={{ label: t.common.requestQuote, href: `/${locale}/presupuesto/` }}
+    secondaryCta={{
+      label: t.common.chatWhatsApp,
+      href: 'https://wa.me/34655634800',
+      variant: 'whatsapp',
+    }}
+    variant="band"
+  />
+</BaseLayout>
