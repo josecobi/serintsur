@@ -46,9 +46,11 @@ export function urlForImage(source: SanityImageSource) {
 }
 
 /**
- * Null-safe image URL builder. Returns `undefined` when the source is missing
- * or when the image field exists but has no uploaded asset (`asset: null` /
- * `asset._ref` undefined — a real editor state in Sanity).
+ * Null-safe image URL builder. Returns `undefined` when the source is missing,
+ * the image field exists but has no uploaded asset (`asset: null` /
+ * `asset._ref` undefined — a real editor state in Sanity), or the underlying
+ * `@sanity/image-url` library fails for any other reason (malformed ref,
+ * unparseable dimensions, etc.).
  *
  * Prefer this over bare `urlForImage(...)` at render sites; the raw builder
  * is still exported for chained transforms that don't fit this helper's shape.
@@ -57,12 +59,26 @@ export function safeImageUrl(
   source: SanityImage | undefined | null,
   width?: number,
 ): string | undefined {
-  // Sanity's image builder throws "Unable to resolve image URL from source"
-  // when asset._ref is missing — defend before we even start the builder.
-  if (!source || !source.asset || !source.asset._ref) return undefined;
-  let pipeline = urlForImage(source);
-  if (width !== undefined) pipeline = pipeline.width(width);
-  return pipeline.url();
+  // Fast path: most "missing image" cases are caught here without touching
+  // the builder at all.
+  if (!source || !source.asset) return undefined;
+  // Asset can be a bare reference (`{_ref, _type}`) or a fully dereferenced
+  // asset (`{_id, ...}` via GROQ `asset->{...}`). Accept either.
+  const asset = source.asset as { _ref?: string; _id?: string };
+  if (!asset._ref && !asset._id) return undefined;
+
+  // Belt-and-suspenders: `@sanity/image-url` has edge cases (malformed refs,
+  // unparseable dimensions) where it throws "Unable to resolve image URL from
+  // source (null)" even when the source *looks* valid. A missing image is
+  // always preferable to a crashed page.
+  try {
+    let pipeline = urlForImage(source);
+    if (width !== undefined) pipeline = pipeline.width(width);
+    return pipeline.url();
+  } catch (error) {
+    console.warn('[safeImageUrl] failed to build URL:', error);
+    return undefined;
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
