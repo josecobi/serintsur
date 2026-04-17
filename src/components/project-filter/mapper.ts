@@ -7,7 +7,7 @@
 
 import {
   pickLocale,
-  urlForImage,
+  safeImageUrl,
   type Locale,
   type Project,
   type ServiceRef,
@@ -26,9 +26,7 @@ export function projectsToCardData(
     const description = pickLocale(project.description, locale);
     const service = isServiceRef(project.service) ? project.service : undefined;
     const serviceTitle = service ? pickLocale(service.title, locale) : undefined;
-    const imageUrl = project.mainImage
-      ? urlForImage(project.mainImage).width(CARD_IMAGE_WIDTH).url()
-      : undefined;
+    const imageUrl = safeImageUrl(project.mainImage, CARD_IMAGE_WIDTH);
 
     return {
       id: project._id,
