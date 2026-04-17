@@ -17,7 +17,7 @@ import {
   getProjects,
   getServiceBySlug,
   pickLocale,
-  urlForImage,
+  safeImageUrl,
 } from '~/lib/sanity';
 import '~/styles/global.css';
 
@@ -55,9 +55,7 @@ const title = pickLocale(service.title, locale) ?? '';
 const description = pickLocale(service.description, locale);
 const body = pickLocale(service.body, locale);
 const bodyHtml = renderPortableText(body);
-const heroUrl = service.heroImage
-  ? urlForImage(service.heroImage).width(1600).url()
-  : undefined;
+const heroUrl = safeImageUrl(service.heroImage, 1600);
 
 const metaTitle = pickLocale(service.seo?.metaTitle, locale) ?? title;
 const metaDescription =

@@ -14,7 +14,7 @@ import {
   getAllProjectSlugs,
   getProjectBySlug,
   pickLocale,
-  urlForImage,
+  safeImageUrl,
   type ServiceRef,
 } from '~/lib/sanity';
 import '~/styles/global.css';
@@ -48,9 +48,7 @@ const description = pickLocale(project.description, locale);
 const body = pickLocale(project.body, locale);
 const bodyHtml = renderPortableText(body);
 
-const mainImageUrl = project.mainImage
-  ? urlForImage(project.mainImage).width(1600).url()
-  : undefined;
+const mainImageUrl = safeImageUrl(project.mainImage, 1600);
 
 // `service` may be a bare reference or a fully dereferenced object — getProjectBySlug
 // expands it, but guard anyway for schema drift.
@@ -169,7 +167,8 @@ function isServiceRef(value: unknown): value is ServiceRef {
           <h2 class="project-section-title text-xl font-semibold mb-4">Galería</h2>
           <ul class="project-gallery-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {project.gallery.map((image, i) => {
-              const url = urlForImage(image).width(1200).url();
+              const url = safeImageUrl(image, 1200);
+              if (!url) return null;
               return (
                 <li class="project-gallery-item">
                   <img

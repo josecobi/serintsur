@@ -7,7 +7,7 @@
 
 import Chatbot from '~/components/chatbot/Chatbot';
 import { getStrings } from '~/lib/i18n';
-import { getActiveServices, pickLocale, urlForImage } from '~/lib/sanity';
+import { getActiveServices, pickLocale, safeImageUrl } from '~/lib/sanity';
 import '~/styles/global.css';
 
 const locale = 'es';
@@ -42,9 +42,7 @@ try {
             {services.map((service) => {
               const title = pickLocale(service.title, locale) ?? '';
               const description = pickLocale(service.description, locale);
-              const heroUrl = service.heroImage
-                ? urlForImage(service.heroImage).width(800).url()
-                : undefined;
+              const heroUrl = safeImageUrl(service.heroImage, 800);
               return (
                 <li class="services-card">
                   <a

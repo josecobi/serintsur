@@ -16,7 +16,7 @@ import {
   getFeaturedProjects,
   getSiteSettings,
   pickLocale,
-  urlForImage,
+  safeImageUrl,
 } from '~/lib/sanity';
 import '~/styles/global.css';
 
@@ -212,7 +212,8 @@ const stats = siteSettings?.stats;
           <h2 class="home-section-title text-xl font-semibold mb-5">Clientes</h2>
           <ul class="home-clients-grid flex flex-wrap items-center gap-6">
             {clientLogos.map((client) => {
-              const logoUrl = urlForImage(client.logo).width(160).url();
+              const logoUrl = safeImageUrl(client.logo, 160);
+              if (!logoUrl) return null;
               const wrapper = client.url ? 'a' : 'div';
               const Wrapper = wrapper as 'a' | 'div';
               return (

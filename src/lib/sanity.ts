@@ -45,6 +45,26 @@ export function urlForImage(source: SanityImageSource) {
   return builder.image(source).auto('format').fit('max');
 }
 
+/**
+ * Null-safe image URL builder. Returns `undefined` when the source is missing
+ * or when the image field exists but has no uploaded asset (`asset: null` /
+ * `asset._ref` undefined — a real editor state in Sanity).
+ *
+ * Prefer this over bare `urlForImage(...)` at render sites; the raw builder
+ * is still exported for chained transforms that don't fit this helper's shape.
+ */
+export function safeImageUrl(
+  source: SanityImage | undefined | null,
+  width?: number,
+): string | undefined {
+  // Sanity's image builder throws "Unable to resolve image URL from source"
+  // when asset._ref is missing — defend before we even start the builder.
+  if (!source || !source.asset || !source.asset._ref) return undefined;
+  let pipeline = urlForImage(source);
+  if (width !== undefined) pipeline = pipeline.width(width);
+  return pipeline.url();
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Locale helpers
 // ─────────────────────────────────────────────────────────────────────────────
