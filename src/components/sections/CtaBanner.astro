@@ -1,0 +1,154 @@
+---
+/*
+  CtaBanner — navy full-bleed band with one or two action buttons.
+  Optional `backgroundImage` gets a heavy navy overlay for legibility.
+  Brand rule: orange is for CTAs only, so the surface is navy and orange
+  lives on the primary button.
+*/
+import Container from "../ui/Container.astro";
+import Button from "../ui/Button.astro";
+
+export interface Props {
+  eyebrow?: string;
+  title: string;
+  subtitle?: string;
+  primaryCta: { label: string; href: string };
+  secondaryCta?: { label: string; href: string; variant?: "outline" | "whatsapp" };
+  backgroundImage?: { src: string; alt?: string };
+  variant?: "band" | "card";
+  class?: string;
+}
+
+const {
+  eyebrow,
+  title,
+  subtitle,
+  primaryCta,
+  secondaryCta,
+  backgroundImage,
+  variant = "band",
+  class: className = "",
+} = Astro.props;
+
+const isCard = variant === "card";
+---
+
+<section
+  class:list={[
+    "relative isolate overflow-hidden text-white",
+    isCard ? "bg-offwhite" : "bg-navy",
+    className,
+  ]}
+  aria-labelledby="cta-title"
+>
+  {
+    isCard ? (
+      <Container width="wide" padY="lg">
+        <div class="relative overflow-hidden rounded-xl bg-navy px-6 py-12 sm:px-10 sm:py-16 lg:px-16 lg:py-20">
+          {/* Orange accent strip */}
+          <div class="absolute left-0 top-0 h-full w-1 bg-orange" aria-hidden="true" />
+          <slot name="image" />
+          <div class="relative grid gap-10 md:grid-cols-12 md:items-center">
+            <div class="md:col-span-7 lg:col-span-8">
+              {eyebrow && (
+                <div class="mb-4 flex items-center gap-3">
+                  <span class="h-[3px] w-10 rounded-sm bg-orange" aria-hidden="true" />
+                  <span class="font-sans text-xs font-semibold uppercase tracking-[0.1em] text-orange-light">
+                    {eyebrow}
+                  </span>
+                </div>
+              )}
+              <h2 id="cta-title" class="font-display text-h1 font-bold leading-tight text-white">
+                {title}
+              </h2>
+              {subtitle && (
+                <p class="mt-4 max-w-2xl text-base leading-relaxed text-white/80 md:text-lg">
+                  {subtitle}
+                </p>
+              )}
+            </div>
+            <div class="flex flex-col gap-3 sm:flex-row md:col-span-5 md:flex-col md:items-stretch lg:col-span-4">
+              <Button variant="primary" size="lg" href={primaryCta.href}>
+                {primaryCta.label}
+                <svg slot="icon-right" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12h14"/>
+                  <path d="m12 5 7 7-7 7"/>
+                </svg>
+              </Button>
+              {secondaryCta && (
+                <Button
+                  variant={secondaryCta.variant ?? "outline"}
+                  size="lg"
+                  href={secondaryCta.href}
+                  class={secondaryCta.variant === "outline" || !secondaryCta.variant
+                    ? "border-white/40 text-white hover:bg-white hover:text-navy"
+                    : ""}
+                >
+                  {secondaryCta.label}
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </Container>
+    ) : (
+      <>
+        {backgroundImage && (
+          <div class="absolute inset-0 -z-10" aria-hidden="true">
+            <img
+              src={backgroundImage.src}
+              alt={backgroundImage.alt ?? ""}
+              loading="lazy"
+              decoding="async"
+              class="h-full w-full object-cover"
+            />
+            <div class="absolute inset-0 bg-gradient-to-r from-navy-dark/90 via-navy/80 to-navy-dark/90" />
+          </div>
+        )}
+        <Container width="wide" padY="lg">
+          <div class="grid gap-10 md:grid-cols-12 md:items-center">
+            <div class="md:col-span-7 lg:col-span-8">
+              {eyebrow && (
+                <div class="mb-4 flex items-center gap-3">
+                  <span class="h-[3px] w-10 rounded-sm bg-orange" aria-hidden="true" />
+                  <span class="font-sans text-xs font-semibold uppercase tracking-[0.1em] text-orange-light">
+                    {eyebrow}
+                  </span>
+                </div>
+              )}
+              <h2 id="cta-title" class="font-display text-h1 font-bold leading-tight text-white">
+                {title}
+              </h2>
+              {subtitle && (
+                <p class="mt-4 max-w-2xl text-base leading-relaxed text-white/80 md:text-lg">
+                  {subtitle}
+                </p>
+              )}
+            </div>
+            <div class="flex flex-col gap-3 sm:flex-row md:col-span-5 md:flex-col md:items-stretch lg:col-span-4">
+              <Button variant="primary" size="lg" href={primaryCta.href}>
+                {primaryCta.label}
+                <svg slot="icon-right" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12h14"/>
+                  <path d="m12 5 7 7-7 7"/>
+                </svg>
+              </Button>
+              {secondaryCta && (
+                <Button
+                  variant={secondaryCta.variant ?? "outline"}
+                  size="lg"
+                  href={secondaryCta.href}
+                  class={secondaryCta.variant === "outline" || !secondaryCta.variant
+                    ? "border-white/40 text-white hover:bg-white hover:text-navy"
+                    : ""}
+                >
+                  {secondaryCta.label}
+                </Button>
+              )}
+            </div>
+          </div>
+        </Container>
+      </>
+    )
+  }
+</section>

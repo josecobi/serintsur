@@ -1,0 +1,141 @@
+---
+/*
+  StatsSection — navy full-bleed band with oversized animated counters.
+  Counter ticks from 0 to target over 1800ms (ease-out cubic) the first time
+  the section enters the viewport. Respects prefers-reduced-motion by jumping
+  straight to the final value. Pass `displayValue` for non-numeric stats to
+  skip animation.
+*/
+import Container from "../ui/Container.astro";
+import SectionHeading from "../ui/SectionHeading.astro";
+
+export interface Stat {
+  value: number;
+  prefix?: string;
+  suffix?: string;
+  label: string;
+  displayValue?: string;
+}
+
+export interface Props {
+  heading?: { eyebrow?: string; title: string; subtitle?: string };
+  stats: Stat[];
+  class?: string;
+}
+
+const { heading, stats, class: className = "" } = Astro.props;
+---
+
+<section
+  class:list={["relative overflow-hidden bg-navy text-white", className]}
+  aria-labelledby={heading ? "stats-heading" : undefined}
+>
+  <!-- Background decoration: orange dots pattern on navy -->
+  <div class="pointer-events-none absolute inset-0 opacity-[0.04]" aria-hidden="true">
+    <svg width="100%" height="100%">
+      <defs>
+        <pattern id="stats-dots" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
+          <circle cx="2" cy="2" r="1" fill="currentColor"/>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#stats-dots)" class="text-white"/>
+    </svg>
+  </div>
+
+  <Container width="wide" padY="lg">
+    {
+      heading && (
+        <div class="mb-12 md:mb-16">
+          <SectionHeading
+            eyebrow={heading.eyebrow}
+            title={heading.title}
+            subtitle={heading.subtitle}
+            tone="dark"
+          >
+            <span id="stats-heading" class="sr-only">{heading.title}</span>
+          </SectionHeading>
+        </div>
+      )
+    }
+
+    <dl
+      data-stats
+      class="grid grid-cols-1 gap-y-10 gap-x-8 sm:grid-cols-2 lg:grid-cols-4"
+    >
+      {
+        stats.map((stat) => (
+          <div class="flex flex-col gap-2 border-l-2 border-orange/60 pl-6">
+            <dt class="sr-only">{stat.label}</dt>
+            <dd class="font-display text-5xl font-bold leading-none text-white md:text-6xl">
+              {stat.prefix && <span class="text-orange">{stat.prefix}</span>}
+              {
+                stat.displayValue ? (
+                  <span>{stat.displayValue}</span>
+                ) : (
+                  <span
+                    data-stat-value
+                    data-target={String(stat.value)}
+                  >
+                    {stat.value}
+                  </span>
+                )
+              }
+              {stat.suffix && <span class="text-orange">{stat.suffix}</span>}
+            </dd>
+            <span class="font-sans text-sm font-medium uppercase tracking-[0.08em] text-white/70">
+              {stat.label}
+            </span>
+          </div>
+        ))
+      }
+    </dl>
+  </Container>
+</section>
+
+<script>
+  /*
+    Animate each [data-stat-value] from 0 to its data-target once its
+    containing [data-stats] wrapper intersects the viewport. Uses a simple
+    ease-out cubic. Skipped if user prefers reduced motion.
+  */
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const DURATION = 1800;
+  const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+
+  const roots = document.querySelectorAll<HTMLElement>("[data-stats]");
+  if (!roots.length) {
+    // nothing to do
+  } else if (prefersReducedMotion) {
+    roots.forEach((root) => {
+      root.querySelectorAll<HTMLElement>("[data-stat-value]").forEach((el) => {
+        const target = Number(el.dataset.target ?? "0");
+        el.textContent = target.toLocaleString("es-ES");
+      });
+    });
+  } else {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const root = entry.target as HTMLElement;
+          observer.unobserve(root);
+          const nodes = root.querySelectorAll<HTMLElement>("[data-stat-value]");
+          const start = performance.now();
+          const tick = (now: number) => {
+            const elapsed = now - start;
+            const progress = Math.min(elapsed / DURATION, 1);
+            const eased = easeOutCubic(progress);
+            nodes.forEach((el) => {
+              const target = Number(el.dataset.target ?? "0");
+              el.textContent = Math.round(target * eased).toLocaleString("es-ES");
+            });
+            if (progress < 1) requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+        }
+      },
+      { threshold: 0.35 }
+    );
+    roots.forEach((root) => observer.observe(root));
+  }
+</script>

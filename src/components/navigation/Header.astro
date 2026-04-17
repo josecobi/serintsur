@@ -1,0 +1,140 @@
+---
+/*
+  Header — sticky top bar.
+  Desktop: logo · nav · lang switcher · CTA.
+  Mobile: logo · hamburger (opens MobileMenu).
+  Scroll adds a subtle shadow.
+
+  Copy comes from `src/lib/i18n.ts` via `getStrings(locale)`. Nav slugs are
+  Spanish across all locales pending a slug-translation strategy.
+*/
+import Container from "../ui/Container.astro";
+import Button from "../ui/Button.astro";
+import LanguageSwitcher from "./LanguageSwitcher.astro";
+import MobileMenu from "./MobileMenu.astro";
+import { getLocaleFromUrl, getStrings, type Locale } from "../../lib/i18n";
+
+export interface Props {
+  currentLocale?: Locale;
+}
+
+const pathname = Astro.url.pathname;
+const currentLocale: Locale = Astro.props.currentLocale ?? getLocaleFromUrl(Astro.url);
+const t = getStrings(currentLocale);
+
+const navItems: { href: string; label: string }[] = [
+  { href: `/${currentLocale}/`, label: t.nav.home },
+  { href: `/${currentLocale}/servicios/`, label: t.nav.services },
+  { href: `/${currentLocale}/proyectos/`, label: t.nav.projects },
+  { href: `/${currentLocale}/sobre-nosotros/`, label: t.nav.about },
+  { href: `/${currentLocale}/contacto/`, label: t.nav.contact },
+];
+
+const ctaHref = `/${currentLocale}/presupuesto/`;
+const ctaLabel = t.nav.estimator;
+
+function isActive(href: string): boolean {
+  if (href === `/${currentLocale}/`) {
+    return pathname === href || pathname === `/${currentLocale}`;
+  }
+  return pathname === href || pathname.startsWith(href);
+}
+---
+
+<header
+  id="site-header"
+  class="sticky top-0 z-40 w-full border-b border-sand-200 bg-white/95 backdrop-blur-md transition-shadow duration-200 data-[scrolled=true]:shadow-md"
+>
+  <Container width="wide">
+    <div class="flex h-16 items-center justify-between gap-4 lg:h-20">
+      <!-- Logo -->
+      <a
+        href={`/${currentLocale}/`}
+        class="flex items-center gap-2 text-navy transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-4 rounded-sm"
+        aria-label={`${t.site.name} — ${t.nav.home}`}
+      >
+        <!-- Placeholder mark until logo SVG lands -->
+        <span class="inline-flex h-9 w-9 items-center justify-center rounded-md bg-navy text-white font-display text-lg font-bold">
+          S
+        </span>
+        <span class="font-display text-lg font-bold tracking-tight text-navy sm:text-xl">
+          Serintsur
+        </span>
+      </a>
+
+      <!-- Desktop nav -->
+      <nav class="hidden lg:flex" aria-label={t.nav.home}>
+        <ul class="flex items-center gap-1">
+          {
+            navItems.map((item) => {
+              const active = isActive(item.href);
+              return (
+                <li>
+                  <a
+                    href={item.href}
+                    aria-current={active ? "page" : undefined}
+                    class:list={[
+                      "relative inline-flex items-center px-3 py-2 font-sans text-sm font-medium transition-colors",
+                      "focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-2 rounded-sm",
+                      active
+                        ? "text-navy after:absolute after:bottom-0 after:left-3 after:right-3 after:h-[2px] after:bg-orange after:rounded-sm"
+                        : "text-sand-700 hover:text-navy",
+                    ]}
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              );
+            })
+          }
+        </ul>
+      </nav>
+
+      <!-- Right cluster -->
+      <div class="flex items-center gap-2 sm:gap-4">
+        <div class="hidden sm:block">
+          <LanguageSwitcher currentLocale={currentLocale} tone="light" />
+        </div>
+
+        <!-- Desktop CTA -->
+        <div class="hidden lg:block">
+          <Button variant="primary" size="sm" href={ctaHref}>{ctaLabel}</Button>
+        </div>
+
+        <!-- Mobile hamburger -->
+        <button
+          type="button"
+          data-mobile-menu-open
+          aria-label={t.nav.openMenu}
+          aria-controls="mobile-menu"
+          class="inline-flex h-10 w-10 items-center justify-center rounded-md text-navy transition-colors hover:bg-sand-100 focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-2 lg:hidden"
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="4" y1="7" x2="20" y2="7"></line>
+            <line x1="4" y1="12" x2="20" y2="12"></line>
+            <line x1="4" y1="17" x2="20" y2="17"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </Container>
+</header>
+
+<MobileMenu
+  currentLocale={currentLocale}
+  navItems={navItems}
+  ctaLabel={ctaLabel}
+  ctaHref={ctaHref}
+/>
+
+<script>
+  const header = document.getElementById("site-header");
+  if (header) {
+    const update = () => {
+      const scrolled = window.scrollY > 8;
+      header.dataset.scrolled = scrolled ? "true" : "false";
+    };
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+  }
+</script>

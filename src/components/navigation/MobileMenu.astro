@@ -1,0 +1,167 @@
+---
+/*
+  MobileMenu — full-height right-side panel on small screens.
+  Uses native <dialog> for free focus-trap, ESC handling, and scroll lock.
+  Opened by any element with [data-mobile-menu-open]; closed by [data-mobile-menu-close]
+  or clicking the backdrop.
+*/
+import LanguageSwitcher from "./LanguageSwitcher.astro";
+import Button from "../ui/Button.astro";
+
+type Locale = "es" | "en" | "de";
+
+export interface Props {
+  currentLocale?: Locale;
+  navItems: { href: string; label: string }[];
+  ctaLabel: string;
+  ctaHref: string;
+}
+
+const { currentLocale = "es", navItems, ctaLabel, ctaHref } = Astro.props;
+---
+
+<dialog
+  id="mobile-menu"
+  aria-label="Menú de navegación"
+  class="mobile-menu fixed inset-0 m-0 h-full max-h-none w-full max-w-none border-0 bg-transparent p-0 text-white [&::backdrop]:bg-navy-dark/60 [&::backdrop]:backdrop-blur-sm"
+>
+  <!-- Panel: occupies right portion of screen, slides in from right -->
+  <div
+    class="mobile-menu__panel ml-auto flex h-full w-full max-w-sm flex-col bg-navy shadow-xl"
+  >
+    <!-- Top bar: logo placeholder + close -->
+    <div class="flex items-center justify-between border-b border-white/10 px-5 py-4">
+      <a
+        href={`/${currentLocale}/`}
+        class="font-display text-lg font-bold tracking-tight text-white"
+        data-mobile-menu-close
+      >
+        Serintsur
+      </a>
+      <button
+        type="button"
+        data-mobile-menu-close
+        aria-label="Cerrar menú"
+        class="inline-flex h-10 w-10 items-center justify-center rounded-md text-white/80 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-2"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Nav links -->
+    <nav class="flex-1 overflow-y-auto px-5 py-8" aria-label="Navegación principal">
+      <ul class="flex flex-col gap-1">
+        {
+          navItems.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                data-mobile-menu-close
+                class="block rounded-md px-3 py-3 font-display text-2xl font-semibold text-white transition-colors hover:bg-white/5 hover:text-orange-light focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-2"
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <!-- Footer: CTA + language switcher -->
+    <div class="border-t border-white/10 px-5 py-5 space-y-4">
+      <Button variant="primary" size="md" fullWidth href={ctaHref}>
+        {ctaLabel}
+      </Button>
+      <div class="flex items-center justify-center pt-2">
+        <LanguageSwitcher currentLocale={currentLocale} tone="dark" />
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<style>
+  /*
+    Native <dialog> is display:none by default and display:block when [open].
+    To animate entry/exit we use @starting-style + allow-discrete so both
+    the discrete `display` and `overlay` properties interpolate.
+  */
+  .mobile-menu {
+    opacity: 0;
+    transition:
+      opacity 250ms var(--ease-out-expo),
+      overlay 250ms allow-discrete,
+      display 250ms allow-discrete;
+  }
+
+  .mobile-menu[open] {
+    opacity: 1;
+  }
+
+  @starting-style {
+    .mobile-menu[open] {
+      opacity: 0;
+    }
+  }
+
+  .mobile-menu__panel {
+    transform: translateX(100%);
+    transition: transform 300ms var(--ease-out-expo);
+  }
+
+  .mobile-menu[open] .mobile-menu__panel {
+    transform: translateX(0);
+  }
+
+  @starting-style {
+    .mobile-menu[open] .mobile-menu__panel {
+      transform: translateX(100%);
+    }
+  }
+
+  /* Backdrop fade */
+  .mobile-menu::backdrop {
+    opacity: 0;
+    transition:
+      opacity 250ms var(--ease-out-expo),
+      overlay 250ms allow-discrete,
+      display 250ms allow-discrete;
+  }
+
+  .mobile-menu[open]::backdrop {
+    opacity: 1;
+  }
+
+  @starting-style {
+    .mobile-menu[open]::backdrop {
+      opacity: 0;
+    }
+  }
+</style>
+
+<script>
+  /*
+    Wiring: any element with [data-mobile-menu-open] opens the dialog,
+    any element with [data-mobile-menu-close] closes it. A click on the
+    backdrop (outside the panel) also closes.
+  */
+  const dialog = document.getElementById("mobile-menu") as HTMLDialogElement | null;
+  if (dialog) {
+    document.querySelectorAll<HTMLElement>("[data-mobile-menu-open]").forEach((btn) => {
+      btn.addEventListener("click", () => dialog.showModal());
+    });
+    dialog.querySelectorAll<HTMLElement>("[data-mobile-menu-close]").forEach((el) => {
+      el.addEventListener("click", () => {
+        // Anchor tags should still navigate; close the dialog first so
+        // the new page loads without a lingering modal.
+        dialog.close();
+      });
+    });
+    // Click on backdrop (the dialog itself — the panel intercepts inside clicks)
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+  }
+</script>
