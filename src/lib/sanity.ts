@@ -224,6 +224,7 @@ export interface SiteSettings {
   };
   logo?: SanityImage;
   logoWhite?: SanityImage;
+  heroImage?: SanityImage;
   cif?: string;
   stats?: {
     projectsCompleted?: number;

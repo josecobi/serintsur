@@ -58,6 +58,8 @@ const [siteSettings, services, featuredProjectsRaw, clientLogos] =
 const featuredProjectsCardData = projectsToCardData(featuredProjectsRaw, locale);
 const tagline = pickLocale(siteSettings?.tagline, locale) ?? t.site.tagline;
 const stats = siteSettings?.stats;
+const heroImageUrl = safeImageUrl(siteSettings?.heroImage, 1600);
+const heroImageAlt = siteSettings?.heroImage?.alt ?? 'Serintsur Multiservicios';
 
 // ─── Map the service icon field onto our ServiceIcon keys ──
 // Sanity's `icon` field is a free-form string; we fall back to matching the
@@ -158,6 +160,7 @@ if (stats) {
     primaryCta={{ label: t.common.requestQuote, href: `/${locale}/presupuesto/` }}
     secondaryCta={{ label: t.common.seeProjects, href: `/${locale}/proyectos/` }}
     stats={heroStats}
+    image={heroImageUrl ? { src: heroImageUrl, alt: heroImageAlt } : undefined}
   />
 
   {serviceCards.length > 0 && (

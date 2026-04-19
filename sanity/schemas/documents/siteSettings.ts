@@ -39,6 +39,15 @@ export const siteSettings = defineType({
       type: 'image',
       options: { hotspot: true },
     }),
+    defineField({
+      name: 'heroImage',
+      title: 'Imagen del hero (portada)',
+      type: 'image',
+      options: { hotspot: true },
+      fields: [
+        defineField({ name: 'alt', title: 'Texto alternativo', type: 'string' }),
+      ],
+    }),
     defineField({ name: 'cif', title: 'CIF', type: 'string', initialValue: 'B11945391' }),
     defineField({
       name: 'stats',
