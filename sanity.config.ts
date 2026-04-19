@@ -6,7 +6,7 @@ import { schemaTypes } from './sanity/schemas';
 import { structure } from './sanity/structure';
 
 const projectId =
-  process.env.SANITY_STUDIO_PROJECT_ID ?? process.env.SANITY_PROJECT_ID ?? 'placeholder';
+  process.env.SANITY_STUDIO_PROJECT_ID ?? process.env.SANITY_PROJECT_ID ?? 'zh7s2pbn';
 const dataset = process.env.SANITY_STUDIO_DATASET ?? process.env.SANITY_DATASET ?? 'production';
 
 // Singleton document types — exactly one instance per dataset, enforced via desk + action filter.
