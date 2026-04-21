@@ -34,6 +34,13 @@ export const clientLogo = defineType({
       initialValue: 'dark',
       description: 'Usa "blanco" si el logo tiene letras blancas sobre fondo transparente (p.ej. Norauto).',
     }),
+    defineField({
+      name: 'showName',
+      title: 'Mostrar nombre debajo del logo',
+      type: 'boolean',
+      initialValue: false,
+      description: 'Actívalo cuando el logo sea difícil de leer a tamaño pequeño (p.ej. Covijerez).',
+    }),
     defineField({ name: 'order', title: 'Orden', type: 'number' }),
     defineField({ name: 'isActive', title: 'Visible', type: 'boolean', initialValue: true }),
   ],

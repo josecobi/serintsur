@@ -17,6 +17,8 @@ export interface ClientLogo {
   href?: string;
   /** "light" = white-on-transparent logo; applies invert so it's visible on light backgrounds */
   variant?: "light" | "dark";
+  /** When true, render the client name as a caption below the logo (useful for hard-to-read marks). */
+  showName?: boolean;
 }
 
 export interface Props {
@@ -49,10 +51,6 @@ const items = [...logos, ...logos];
     }
 
     <div class="marquee group relative">
-      <!-- Fade edges for elegant entry/exit -->
-      <div class="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-offwhite to-transparent md:w-24" aria-hidden="true"></div>
-      <div class="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-offwhite to-transparent md:w-24" aria-hidden="true"></div>
-
       <ul
         class="marquee__track flex w-max items-center gap-12 md:gap-16"
         style={`--marquee-duration: ${durationMap[speed]}`}
@@ -60,46 +58,62 @@ const items = [...logos, ...logos];
         {
           items.map((logo, i) => {
             const baseImg = [
-              "h-12 w-auto max-w-[200px] object-contain grayscale opacity-60 transition-all duration-300 md:h-16",
+              "h-10 md:h-12 w-auto object-contain grayscale opacity-60 transition-all duration-300",
               logo.variant === "light" ? "invert" : "",
             ].filter(Boolean).join(" ");
+            const interactive = !!logo.href;
+            const showCaption = !!logo.src && !!logo.showName;
+            const captionClass = [
+              "font-sans text-[11px] font-medium uppercase tracking-wide text-sand-500 transition-colors md:text-xs",
+              interactive ? "group-hover/logo:text-navy" : "",
+            ].filter(Boolean).join(" ");
+
+            const inner = logo.src ? (
+              showCaption ? (
+                <span class="flex flex-col items-center gap-1.5">
+                  <img
+                    src={logo.src}
+                    alt={logo.alt ?? logo.name}
+                    class={interactive ? `${baseImg} group-hover/logo:grayscale-0 group-hover/logo:opacity-100` : baseImg}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <span class={captionClass}>{logo.name}</span>
+                </span>
+              ) : (
+                <img
+                  src={logo.src}
+                  alt={logo.alt ?? logo.name}
+                  class={interactive ? `${baseImg} group-hover/logo:grayscale-0 group-hover/logo:opacity-100` : baseImg}
+                  loading="lazy"
+                  decoding="async"
+                />
+              )
+            ) : (
+              <span
+                class:list={[
+                  "font-display text-xl font-bold uppercase tracking-wide text-sand-500 md:text-2xl",
+                  interactive && "transition-colors group-hover/logo:text-navy",
+                ]}
+              >
+                {logo.name}
+              </span>
+            );
 
             return (
               <li class="shrink-0" aria-hidden={i >= logos.length ? "true" : undefined}>
-                {logo.href ? (
+                {interactive ? (
                   <a
                     href={logo.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="block"
+                    class="group/logo block"
                     aria-label={logo.name}
                   >
-                    {logo.src ? (
-                      <img
-                        src={logo.src}
-                        alt={logo.alt ?? logo.name}
-                        class={`${baseImg} hover:grayscale-0 hover:opacity-100`}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    ) : (
-                      <span class="font-display text-xl font-bold uppercase tracking-wide text-sand-500 transition-colors hover:text-navy md:text-2xl">
-                        {logo.name}
-                      </span>
-                    )}
+                    {inner}
                   </a>
-                ) : logo.src ? (
-                  <img
-                    src={logo.src}
-                    alt={logo.alt ?? logo.name}
-                    class={baseImg}
-                    loading="lazy"
-                    decoding="async"
-                  />
                 ) : (
-                  <span class="font-display text-xl font-bold uppercase tracking-wide text-sand-500 md:text-2xl">
-                    {logo.name}
-                  </span>
+                  inner
                 )}
               </li>
             );
@@ -124,6 +138,9 @@ const items = [...logos, ...logos];
   .marquee__track {
     animation: marquee-scroll var(--marquee-duration, 40s) linear infinite;
     will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-font-smoothing: subpixel-antialiased;
   }
 
   .marquee:hover .marquee__track,
