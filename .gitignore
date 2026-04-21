@@ -32,3 +32,4 @@ Thumbs.db
 # Sanity
 sanity/dist/
 .vercel
+.env*.local
