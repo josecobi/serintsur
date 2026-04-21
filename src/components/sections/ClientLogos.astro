@@ -15,6 +15,8 @@ export interface ClientLogo {
   src?: string;
   alt?: string;
   href?: string;
+  /** "light" = white-on-transparent logo; applies invert so it's visible on light backgrounds */
+  variant?: "light" | "dark";
 }
 
 export interface Props {
@@ -56,45 +58,52 @@ const items = [...logos, ...logos];
         style={`--marquee-duration: ${durationMap[speed]}`}
       >
         {
-          items.map((logo, i) => (
-            <li class="shrink-0" aria-hidden={i >= logos.length ? "true" : undefined}>
-              {logo.href ? (
-                <a
-                  href={logo.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="block"
-                  aria-label={logo.name}
-                >
-                  {logo.src ? (
-                    <img
-                      src={logo.src}
-                      alt={logo.alt ?? logo.name}
-                      class="h-8 w-auto max-w-[160px] object-contain grayscale opacity-60 transition-all duration-300 hover:grayscale-0 hover:opacity-100 md:h-10"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  ) : (
-                    <span class="font-display text-lg font-bold uppercase tracking-wide text-sand-500 transition-colors hover:text-navy md:text-xl">
-                      {logo.name}
-                    </span>
-                  )}
-                </a>
-              ) : logo.src ? (
-                <img
-                  src={logo.src}
-                  alt={logo.alt ?? logo.name}
-                  class="h-8 w-auto max-w-[160px] object-contain grayscale opacity-60 md:h-10"
-                  loading="lazy"
-                  decoding="async"
-                />
-              ) : (
-                <span class="font-display text-lg font-bold uppercase tracking-wide text-sand-500 md:text-xl">
-                  {logo.name}
-                </span>
-              )}
-            </li>
-          ))
+          items.map((logo, i) => {
+            const baseImg = [
+              "h-12 w-auto max-w-[200px] object-contain grayscale opacity-60 transition-all duration-300 md:h-16",
+              logo.variant === "light" ? "invert" : "",
+            ].filter(Boolean).join(" ");
+
+            return (
+              <li class="shrink-0" aria-hidden={i >= logos.length ? "true" : undefined}>
+                {logo.href ? (
+                  <a
+                    href={logo.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="block"
+                    aria-label={logo.name}
+                  >
+                    {logo.src ? (
+                      <img
+                        src={logo.src}
+                        alt={logo.alt ?? logo.name}
+                        class={`${baseImg} hover:grayscale-0 hover:opacity-100`}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : (
+                      <span class="font-display text-xl font-bold uppercase tracking-wide text-sand-500 transition-colors hover:text-navy md:text-2xl">
+                        {logo.name}
+                      </span>
+                    )}
+                  </a>
+                ) : logo.src ? (
+                  <img
+                    src={logo.src}
+                    alt={logo.alt ?? logo.name}
+                    class={baseImg}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                ) : (
+                  <span class="font-display text-xl font-bold uppercase tracking-wide text-sand-500 md:text-2xl">
+                    {logo.name}
+                  </span>
+                )}
+              </li>
+            );
+          })
         }
       </ul>
     </div>

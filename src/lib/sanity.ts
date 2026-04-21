@@ -192,6 +192,7 @@ export interface ClientLogo {
   name: string;
   logo: SanityImage;
   url?: string;
+  logoVariant?: 'light' | 'dark';
   order?: number;
   isActive: boolean;
 }
@@ -353,7 +354,7 @@ export async function getAllServiceSlugs(): Promise<string[]> {
 
 export async function getActiveClientLogos(): Promise<ClientLogo[]> {
   return sanity.fetch<ClientLogo[]>(
-    `*[_type == "clientLogo" && isActive == true] | order(order asc) { _id, name, logo, url, order }`,
+    `*[_type == "clientLogo" && isActive == true] | order(order asc) { _id, name, logo, url, logoVariant, order }`,
   );
 }
 

@@ -20,6 +20,20 @@ export const clientLogo = defineType({
       validation: (r) => r.required(),
     }),
     defineField({ name: 'url', title: 'Web del cliente (opcional)', type: 'url' }),
+    defineField({
+      name: 'logoVariant',
+      title: 'Variante del logo',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Oscuro sobre transparente (normal)', value: 'dark' },
+          { title: 'Blanco sobre transparente (invertir para fondo claro)', value: 'light' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'dark',
+      description: 'Usa "blanco" si el logo tiene letras blancas sobre fondo transparente (p.ej. Norauto).',
+    }),
     defineField({ name: 'order', title: 'Orden', type: 'number' }),
     defineField({ name: 'isActive', title: 'Visible', type: 'boolean', initialValue: true }),
   ],
