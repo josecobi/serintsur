@@ -148,6 +148,28 @@ const items = [...logos, ...logos];
     animation-play-state: paused;
   }
 
+  /* Edge fades — must match the section's bg-offwhite (#faf8f5) */
+  .marquee::before,
+  .marquee::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 4rem;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .marquee::before {
+    left: 0;
+    background: linear-gradient(to right, #faf8f5, transparent);
+  }
+
+  .marquee::after {
+    right: 0;
+    background: linear-gradient(to left, #faf8f5, transparent);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .marquee__track {
       animation: none;
