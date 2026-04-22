@@ -15,9 +15,10 @@ export interface Props {
   navItems: { href: string; label: string }[];
   ctaLabel: string;
   ctaHref: string;
+  logoUrl?: string;
 }
 
-const { currentLocale = "es", navItems, ctaLabel, ctaHref } = Astro.props;
+const { currentLocale = "es", navItems, ctaLabel, ctaHref, logoUrl } = Astro.props;
 ---
 
 <dialog
@@ -33,10 +34,14 @@ const { currentLocale = "es", navItems, ctaLabel, ctaHref } = Astro.props;
     <div class="flex items-center justify-between border-b border-white/10 px-5 py-4">
       <a
         href={`/${currentLocale}/`}
-        class="font-display text-lg font-bold tracking-tight text-white"
+        class="inline-flex items-center"
         data-mobile-menu-close
       >
-        Serintsur
+        {logoUrl ? (
+          <img src={logoUrl} alt="Serintsur" class="h-9 w-auto" width="200" height="36" />
+        ) : (
+          <span class="font-display text-lg font-bold tracking-tight text-white">Serintsur</span>
+        )}
       </a>
       <button
         type="button"

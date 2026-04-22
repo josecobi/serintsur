@@ -13,9 +13,11 @@ import { getLocaleFromUrl, getStrings, type Locale } from "../../lib/i18n";
 
 export interface Props {
   currentLocale?: Locale;
+  logoUrl?: string;
 }
 
-const currentLocale: Locale = Astro.props.currentLocale ?? getLocaleFromUrl(Astro.url);
+const { currentLocale: localeProp, logoUrl } = Astro.props;
+const currentLocale: Locale = localeProp ?? getLocaleFromUrl(Astro.url);
 const t = getStrings(currentLocale);
 
 const localePath = (slug: string) => `/${currentLocale}/${slug}${slug ? "/" : ""}`;
@@ -66,10 +68,16 @@ const year = new Date().getFullYear();
           class="inline-flex items-center gap-2 text-white focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-4 rounded-sm"
           aria-label={t.site.name}
         >
-          <span class="inline-flex h-10 w-10 items-center justify-center rounded-md bg-white text-navy font-display text-xl font-bold">
-            S
-          </span>
-          <span class="font-display text-xl font-bold tracking-tight">Serintsur</span>
+          {logoUrl ? (
+            <img src={logoUrl} alt={t.site.name} class="h-10 w-auto" width="220" height="40" />
+          ) : (
+            <>
+              <span class="inline-flex h-10 w-10 items-center justify-center rounded-md bg-white text-navy font-display text-xl font-bold">
+                S
+              </span>
+              <span class="font-display text-xl font-bold tracking-tight">Serintsur</span>
+            </>
+          )}
         </a>
         <p class="mt-5 max-w-sm text-sm leading-relaxed text-white/70">
           {t.site.tagline}

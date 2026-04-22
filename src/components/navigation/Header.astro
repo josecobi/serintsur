@@ -16,10 +16,13 @@ import { getLocaleFromUrl, getStrings, type Locale } from "../../lib/i18n";
 
 export interface Props {
   currentLocale?: Locale;
+  logoUrl?: string;
+  logoWhiteUrl?: string;
 }
 
 const pathname = Astro.url.pathname;
-const currentLocale: Locale = Astro.props.currentLocale ?? getLocaleFromUrl(Astro.url);
+const { currentLocale: localeProp, logoUrl, logoWhiteUrl } = Astro.props;
+const currentLocale: Locale = localeProp ?? getLocaleFromUrl(Astro.url);
 const t = getStrings(currentLocale);
 
 const navItems: { href: string; label: string }[] = [
@@ -53,13 +56,18 @@ function isActive(href: string): boolean {
         class="flex items-center gap-2 text-navy transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-orange focus-visible:outline-offset-4 rounded-sm"
         aria-label={`${t.site.name} — ${t.nav.home}`}
       >
-        <!-- Placeholder mark until logo SVG lands -->
-        <span class="inline-flex h-9 w-9 items-center justify-center rounded-md bg-navy text-white font-display text-lg font-bold">
-          S
-        </span>
-        <span class="font-display text-lg font-bold tracking-tight text-navy sm:text-xl">
-          Serintsur
-        </span>
+        {logoUrl ? (
+          <img src={logoUrl} alt={t.site.name} class="h-9 w-auto lg:h-10" width="200" height="40" />
+        ) : (
+          <>
+            <span class="inline-flex h-9 w-9 items-center justify-center rounded-md bg-navy text-white font-display text-lg font-bold">
+              S
+            </span>
+            <span class="font-display text-lg font-bold tracking-tight text-navy sm:text-xl">
+              Serintsur
+            </span>
+          </>
+        )}
       </a>
 
       <!-- Desktop nav -->
@@ -125,6 +133,7 @@ function isActive(href: string): boolean {
   navItems={navItems}
   ctaLabel={ctaLabel}
   ctaHref={ctaHref}
+  logoUrl={logoWhiteUrl}
 />
 
 <script>

@@ -10,6 +10,7 @@ import {
   LOCALE_HREFLANG,
   type Locale,
 } from "../lib/i18n";
+import { getSiteSettings, safeImageUrl, type SiteSettings } from "../lib/sanity";
 
 export interface Props {
   title: string;
@@ -23,6 +24,8 @@ export interface Props {
   chrome?: boolean;
   /** Render the Chatbot island by default. Set false to omit (e.g. Studio). */
   chatbot?: boolean;
+  /** Pass in an already-fetched siteSettings to avoid a duplicate query. */
+  siteSettings?: SiteSettings | null;
 }
 
 const detectedLocale = getLocaleFromUrl(Astro.url);
@@ -36,7 +39,15 @@ const {
   bodyClass = "",
   chrome = true,
   chatbot = true,
+  siteSettings: siteSettingsProp,
 } = Astro.props;
+
+const settings = siteSettingsProp !== undefined
+  ? siteSettingsProp
+  : await getSiteSettings().catch(() => null);
+
+const logoUrl = safeImageUrl(settings?.logo, 240);
+const logoWhiteUrl = safeImageUrl(settings?.logoWhite, 240) ?? logoUrl;
 
 const t = getStrings(lang);
 const fallbackDescription = t.site.descriptionShort;
@@ -117,7 +128,7 @@ const xDefault = alternates.find((a) => a.locale === "es");
 
     {chrome ? (
       <slot name="header">
-        <Header currentLocale={lang} />
+        <Header currentLocale={lang} logoUrl={logoUrl} logoWhiteUrl={logoWhiteUrl} />
       </slot>
     ) : (
       <slot name="header" />
@@ -129,7 +140,7 @@ const xDefault = alternates.find((a) => a.locale === "es");
 
     {chrome ? (
       <slot name="footer">
-        <Footer currentLocale={lang} />
+        <Footer currentLocale={lang} logoUrl={logoWhiteUrl} />
       </slot>
     ) : (
       <slot name="footer" />
