@@ -19,6 +19,8 @@ export interface ClientLogo {
   variant?: "light" | "dark";
   /** When true, render the client name as a caption below the logo (useful for hard-to-read marks). */
   showName?: boolean;
+  /** Per-logo height override. Defaults to "md" (48px). */
+  size?: "sm" | "md" | "lg" | "xl";
 }
 
 export interface Props {
@@ -51,15 +53,16 @@ const items = [...logos, ...logos];
     }
   </Container>
 
-  <div class="marquee group relative py-12 md:py-16">
+  <div class="marquee group relative py-6 md:py-8">
     <ul
         class="marquee__track flex w-max items-center gap-12 md:gap-16"
         style={`--marquee-duration: ${durationMap[speed]}`}
       >
         {
           items.map((logo, i) => {
+            const sizeClass = { sm: "h-8 md:h-8", md: "h-10 md:h-12", lg: "h-14 md:h-16", xl: "h-16 md:h-20" }[logo.size ?? "md"];
             const baseImg = [
-              "h-10 md:h-12 w-auto object-contain grayscale opacity-60 transition-all duration-300",
+              `${sizeClass} w-auto object-contain grayscale opacity-60 transition-all duration-300`,
               logo.variant === "light" ? "invert" : "",
             ].filter(Boolean).join(" ");
             const interactive = !!logo.href;

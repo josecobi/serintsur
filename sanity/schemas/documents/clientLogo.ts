@@ -41,6 +41,22 @@ export const clientLogo = defineType({
       initialValue: false,
       description: 'Actívalo cuando el logo sea difícil de leer a tamaño pequeño (p.ej. Covijerez).',
     }),
+    defineField({
+      name: 'logoSize',
+      title: 'Tamaño del logo',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Pequeño (32px)', value: 'sm' },
+          { title: 'Normal (48px)', value: 'md' },
+          { title: 'Grande (64px)', value: 'lg' },
+          { title: 'Muy grande (80px)', value: 'xl' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'md',
+      description: 'Ajusta si el logo aparece demasiado pequeño o grande respecto al resto.',
+    }),
     defineField({ name: 'order', title: 'Orden', type: 'number' }),
     defineField({ name: 'isActive', title: 'Visible', type: 'boolean', initialValue: true }),
   ],
