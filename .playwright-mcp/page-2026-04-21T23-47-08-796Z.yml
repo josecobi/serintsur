@@ -1,0 +1,51 @@
+- generic [ref=e1]:
+  - dialog "Cookie Consent Banner" [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: This website utilizes technologies such as cookies to enable essential site functionality, as well as for analytics, personalization, and targeted advertising.
+      - link "Privacy Policy" [active] [ref=e5] [cursor=pointer]:
+        - /url: /legal/privacy
+    - generic [ref=e6]:
+      - button "Accept" [ref=e7] [cursor=pointer]
+      - button "Deny Non-Essential" [ref=e8] [cursor=pointer]
+      - button "Preferences" [ref=e9] [cursor=pointer]
+  - dialog "Cookie Consent Banner" [ref=e10]:
+    - generic [ref=e11]:
+      - generic [ref=e12]: This website utilizes technologies such as cookies to enable essential site functionality, as well as for analytics, personalization, and targeted advertising.
+      - link "Privacy Policy" [ref=e13] [cursor=pointer]:
+        - /url: /legal/privacy
+    - generic [ref=e14]:
+      - button "Accept" [ref=e15] [cursor=pointer]
+      - button "Deny Non-Essential" [ref=e16] [cursor=pointer]
+      - button "Preferences" [ref=e17] [cursor=pointer]
+  - generic [ref=e18]:
+    - generic [ref=e25]:
+      - img "Sanity" [ref=e27]
+      - generic [ref=e31]: Log in to your account
+      - generic [ref=e32]:
+        - generic [ref=e35]:
+          - link "Continue with Google" [ref=e36] [cursor=pointer]:
+            - /url: https://api.sanity.io/v1/auth/login/google?type=token&origin=https%3A%2F%2Fwww.sanity.io%2Fapi%2Fdashboard%2Fauthenticate%3FredirectTo%3D%2F%40oJIji7z7o%2Fstudio%2Fu0t7xxtlrfafkl7apvzyvvge
+            - generic [ref=e38]:
+              - img [ref=e41]
+              - generic [ref=e47]: Continue with Google
+          - link "Continue with GitHub" [ref=e48] [cursor=pointer]:
+            - /url: https://api.sanity.io/v1/auth/login/github?type=token&origin=https%3A%2F%2Fwww.sanity.io%2Fapi%2Fdashboard%2Fauthenticate%3FredirectTo%3D%2F%40oJIji7z7o%2Fstudio%2Fu0t7xxtlrfafkl7apvzyvvge
+            - generic [ref=e50]:
+              - img [ref=e53]
+              - generic [ref=e56]: Continue with GitHub
+          - link "Continue with email" [ref=e57] [cursor=pointer]:
+            - /url: https://api.sanity.io/v1/auth/login/sanity?type=token&origin=https%3A%2F%2Fwww.sanity.io%2Fapi%2Fdashboard%2Fauthenticate%3FredirectTo%3D%2F%40oJIji7z7o%2Fstudio%2Fu0t7xxtlrfafkl7apvzyvvge
+            - generic [ref=e59]:
+              - img [ref=e62]
+              - generic [ref=e69]: Continue with email
+        - generic [ref=e72]:
+          - link "Use SSO" [ref=e75] [cursor=pointer]:
+            - /url: /login/sso?type=token&origin=https%3A%2F%2Fwww.sanity.io%2Fapi%2Fdashboard%2Fauthenticate%3FredirectTo%3D%252F%2540oJIji7z7o%252Fstudio%252Fu0t7xxtlrfafkl7apvzyvvge
+          - link "Forgot password?" [ref=e78] [cursor=pointer]:
+            - /url: https://accounts.sanity.io/resetPassword?type=token&origin=https%3A%2F%2Fwww.sanity.io%2Fapi%2Fdashboard%2Fauthenticate%3FredirectTo%3D%252F%2540oJIji7z7o%252Fstudio%252Fu0t7xxtlrfafkl7apvzyvvge
+          - generic [ref=e80]:
+            - text: Don’t have an account?
+            - link "Create one" [ref=e81] [cursor=pointer]:
+              - /url: /login/sign-up?type=token&origin=https%3A%2F%2Fwww.sanity.io%2Fapi%2Fdashboard%2Fauthenticate%3FredirectTo%3D%252F%2540oJIji7z7o%252Fstudio%252Fu0t7xxtlrfafkl7apvzyvvge
+    - list
+  - alert [ref=e82]

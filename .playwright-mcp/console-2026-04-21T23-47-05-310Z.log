@@ -1,0 +1,54 @@
+[    1481ms] [WARNING] No token provided to getQueryClient on browser, this is unlikely to be what you want as you will not be able to make requests. @ https://www.sanity.io/dashboard/assets/sentry-C9SZDz5k.js:5
+[    1800ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://api.sanity.io/v2025-08-19/auth/session/create?tag=sanity.dashboard:0
+[    1802ms] [INFO] {err: Unauthorized - No authorization header on the request} Failed to create session @ https://www.sanity.io/dashboard/assets/logger-D8XTwq-6.js:2
+[    1949ms] [ERROR] Fetch error: TypeError: Failed to fetch (api.vector.co)
+    at https://www.sanity.io/dashboard/assets/sentry-C9SZDz5k.js:6:50493
+    at e.<anonymous> (https://cdn.vector.co/pixel.js:2:35952)
+    at p (https://cdn.vector.co/pixel.js:2:28261)
+    at Generator.<anonymous> (https://cdn.vector.co/pixel.js:2:29603)
+    at Generator.next (https://cdn.vector.co/pixel.js:2:28690)
+    at a (https://cdn.vector.co/pixel.js:2:34864)
+    at s (https://cdn.vector.co/pixel.js:2:36450)
+    at https://cdn.vector.co/pixel.js:2:36509
+    at new Promise (<anonymous>)
+    at e.i (https://cdn.vector.co/pixel.js:2:36390)
+    at t.value (https://cdn.vector.co/pixel.js:2:36544)
+    at e.value (https://cdn.vector.co/pixel.js:2:36674)
+    at https://cdn.vector.co/pixel.js:2:9653
+    at p (https://cdn.vector.co/pixel.js:2:2905)
+    at Generator.<anonymous> (https://cdn.vector.co/pixel.js:2:4247)
+    at Generator.next (https://cdn.vector.co/pixel.js:2:3334)
+    at d (https://cdn.vector.co/pixel.js:2:8808)
+    at a (https://cdn.vector.co/pixel.js:2:9011)
+    at https://cdn.vector.co/pixel.js:2:9070
+    at new Promise (<anonymous>)
+    at https://cdn.vector.co/pixel.js:2:8951
+    at https://cdn.vector.co/pixel.js:2:9972
+    at https://cdn.vector.co/pixel.js:2:10712
+    at p (https://cdn.vector.co/pixel.js:2:2905)
+    at Generator.<anonymous> (https://cdn.vector.co/pixel.js:2:4247)
+    at Generator.next (https://cdn.vector.co/pixel.js:2:3334)
+    at d (https://cdn.vector.co/pixel.js:2:8808)
+    at a (https://cdn.vector.co/pixel.js:2:9011)
+    at https://cdn.vector.co/pixel.js:2:9070
+    at new Promise (<anonymous>)
+    at Object.<anonymous> (https://cdn.vector.co/pixel.js:2:8951)
+    at Object.getIpInfoAndCheckCloudProvider (https://cdn.vector.co/pixel.js:2:10888)
+    at https://cdn.vector.co/pixel.js:2:200656
+    at p (https://cdn.vector.co/pixel.js:2:192303)
+    at Generator.<anonymous> (https://cdn.vector.co/pixel.js:2:193645)
+    at Generator.next (https://cdn.vector.co/pixel.js:2:192732)
+    at l (https://cdn.vector.co/pixel.js:2:198206)
+    at a (https://cdn.vector.co/pixel.js:2:198409)
+    at https://cdn.vector.co/pixel.js:2:198468
+    at new Promise (<anonymous>)
+    at https://cdn.vector.co/pixel.js:2:198349
+    at https://cdn.vector.co/pixel.js:2:202677
+    at p (https://cdn.vector.co/pixel.js:2:192303)
+    at Generator.<anonymous> (https://cdn.vector.co/pixel.js:2:193645)
+    at Generator.next (https://cdn.vector.co/pixel.js:2:192732)
+    at l (https://cdn.vector.co/pixel.js:2:198206)
+    at a (https://cdn.vector.co/pixel.js:2:198409)
+    at https://cdn.vector.co/pixel.js:2:198468
+    at new Promise (<anonymous>)
+    at https://cdn.vector.co/pixel.js:2:198349 @ https://www.sanity.io/dashboard/assets/sentry-C9SZDz5k.js:5

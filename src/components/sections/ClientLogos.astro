@@ -49,9 +49,10 @@ const items = [...logos, ...logos];
         </p>
       )
     }
+  </Container>
 
-    <div class="marquee group relative">
-      <ul
+  <div class="marquee group relative py-12 md:py-16">
+    <ul
         class="marquee__track flex w-max items-center gap-12 md:gap-16"
         style={`--marquee-duration: ${durationMap[speed]}`}
       >
@@ -120,8 +121,7 @@ const items = [...logos, ...logos];
           })
         }
       </ul>
-    </div>
-  </Container>
+  </div>
 </section>
 
 <style>
