@@ -17,6 +17,7 @@ interface ScrollHeroProps {
   eyebrow?: string;
   primaryCta?: Cta;
   secondaryCta?: Cta;
+  stats?: { value: string; label: string }[];
   videoSrc?: string;
   posterSrc?: string;
 }
@@ -27,6 +28,7 @@ export default function ScrollHero({
   eyebrow,
   primaryCta,
   secondaryCta,
+  stats,
   videoSrc = '/videos/hero.mp4',
   posterSrc = '/videos/hero-poster.jpg',
 }: ScrollHeroProps) {
@@ -71,6 +73,7 @@ export default function ScrollHero({
           eyebrow={eyebrow}
           primaryCta={primaryCta}
           secondaryCta={secondaryCta}
+          stats={stats}
           containerRef={containerRef}
         />
       </div>
