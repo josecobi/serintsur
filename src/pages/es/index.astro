@@ -9,6 +9,7 @@
 */
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import HeroSection from '~/components/sections/HeroSection.astro';
+import ScrollHero from '~/components/scroll-hero/ScrollHero';
 import StatsSection, { type Stat } from '~/components/sections/StatsSection.astro';
 import ServicesGrid, {
   type Service as ServiceCard,
@@ -156,14 +157,13 @@ if (stats) {
   description={t.site.descriptionShort}
   lang={locale}
 >
-  <HeroSection
+  <ScrollHero
+    client:load
     eyebrow="Serintsur Multiservicios S.L."
     title="Construimos y rehabilitamos espacios que perduran"
     subtitle={tagline}
     primaryCta={{ label: t.common.requestQuote, href: `/${locale}/presupuesto/` }}
     secondaryCta={{ label: t.common.seeProjects, href: `/${locale}/proyectos/` }}
-    stats={heroStats}
-    image={heroImageUrl ? { src: heroImageUrl, alt: heroImageAlt } : undefined}
   />
 
   {serviceCards.length > 0 && (
