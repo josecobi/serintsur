@@ -27,6 +27,15 @@ export default function ScrollVideo({ src, poster, containerRef }: ScrollVideoPr
     }
   }, [src]);
 
+  // Force frame 0 to paint before first scroll event
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const onLoaded = () => { video.currentTime = 0; };
+    video.addEventListener('loadedmetadata', onLoaded);
+    return () => video.removeEventListener('loadedmetadata', onLoaded);
+  }, []);
+
   useEffect(() => {
     if (prefersReducedMotion) return;
     if (!containerRef.current) return;
@@ -54,7 +63,7 @@ export default function ScrollVideo({ src, poster, containerRef }: ScrollVideoPr
   // Reduced-motion: static poster or plain navy background
   if (prefersReducedMotion) {
     return (
-      <div className="absolute inset-0 z-0 overflow-hidden">
+      <div className="absolute inset-0 z-0 overflow-hidden bg-navy-dark">
         {poster ? (
           <img
             src={poster}
@@ -70,7 +79,7 @@ export default function ScrollVideo({ src, poster, containerRef }: ScrollVideoPr
   }
 
   return (
-    <div className="absolute inset-0 z-0 overflow-hidden">
+    <div className="absolute inset-0 z-0 overflow-hidden bg-navy-dark">
       <video
         ref={videoRef}
         src={src}
@@ -80,6 +89,7 @@ export default function ScrollVideo({ src, poster, containerRef }: ScrollVideoPr
         preload="auto"
         crossOrigin="anonymous"
         className="h-full w-full object-cover"
+        style={{ backgroundColor: 'var(--color-navy-dark)' }}
         aria-hidden="true"
       />
     </div>

@@ -58,27 +58,27 @@ export default function ScrollText({
       ),
     );
 
-    // Stats: fade in as headline finishes leaving (55%→70%)
+    // Stats: fade in after headline finishes leaving (62%→75%) — no temporal overlap
     if (statsRef.current) {
       tweens.push(
         gsap.fromTo(
           statsRef.current,
-          { opacity: 0, y: '4vh' },
+          { opacity: 0, y: '2vh' },
           {
             opacity: 1,
             y: 0,
             ease: 'none',
             scrollTrigger: {
               trigger: containerRef.current,
-              start: '55% bottom',
-              end: '70% bottom',
+              start: '62% bottom',
+              end: '75% bottom',
               scrub: true,
             },
           },
         ),
       );
 
-      // Stats: fade out before the hero ends (85%→100%).
+      // Stats: fade out before the hero ends (88%→100%).
       // Use fromTo (not to) so GSAP doesn't capture opacity:0 as the start state.
       tweens.push(
         gsap.fromTo(
@@ -86,11 +86,11 @@ export default function ScrollText({
           { opacity: 1, y: 0 },
           {
             opacity: 0,
-            y: '-4vh',
+            y: '-2vh',
             ease: 'none',
             scrollTrigger: {
               trigger: containerRef.current,
-              start: '85% bottom',
+              start: '88% bottom',
               end: 'bottom bottom',
               scrub: true,
             },
@@ -110,21 +110,13 @@ export default function ScrollText({
   const hasStats = stats && stats.length > 0;
 
   return (
-    /*
-      absolute inset-0 z-20: sits above video (z-0) and gradient overlay (z-10).
-      Both headline and stats share the same centred column so stats appear in
-      the same viewport zone as the headline — not as a footer.
-    */
-    <div className="absolute inset-0 z-20 flex flex-col justify-center pointer-events-none">
-      <div className="mx-auto w-full max-w-[80rem] px-6 md:px-12">
+    // absolute inset-0 z-20: sits above video (z-0) and gradient overlay (z-10)
+    <div className="absolute inset-0 z-20 pointer-events-none">
 
-        {/*
-          Relative wrapper: both the headline and the stats occupy the same
-          top-left anchor so the stats literally replace the headline as it
-          fades out, rather than sitting below it.
-        */}
-        <div className="relative md:max-w-2xl">
-          <div ref={textRef} className="flex flex-col gap-5">
+      {/* Headline — vertically centered in the sticky frame */}
+      <div className="absolute inset-0 flex flex-col justify-center">
+        <div className="mx-auto w-full max-w-[80rem] px-6 md:px-12">
+          <div ref={textRef} className="flex flex-col gap-5 md:max-w-2xl">
             {eyebrow && (
               <div className="flex items-center gap-3">
                 <span className="h-[3px] w-10 rounded-sm bg-orange" aria-hidden="true" />
@@ -205,28 +197,31 @@ export default function ScrollText({
               </div>
             )}
           </div>
+        </div>
+      </div>
 
-          {/* Stats — inside the relative wrapper, overlaid at the same top-left anchor as the headline */}
-          {hasStats && (
+      {/* Stats — pinned to the bottom of the sticky frame, matching HeroSection layout */}
+      {hasStats && (
+        <div className="absolute bottom-12 left-0 right-0">
+          <div className="mx-auto w-full max-w-[80rem] px-6 md:px-12">
             <div
               ref={statsRef}
-              className="absolute top-0 left-0 w-full"
               style={{ opacity: prefersReducedMotion ? 1 : 0 }}
             >
-              <dl className="flex flex-wrap items-baseline gap-x-10 gap-y-5">
+              <dl className="flex flex-wrap items-baseline gap-x-8 gap-y-4 border-t border-white/15 pt-6">
                 {stats!.map((stat) => (
-                  <div key={stat.label} className="flex items-baseline gap-3">
-                    <dt className="font-display text-5xl font-bold text-orange-light">
+                  <div key={stat.label} className="flex items-baseline gap-2">
+                    <dt className="font-display text-2xl font-bold text-orange-light">
                       {stat.value}
                     </dt>
-                    <dd className="text-base text-white/70">{stat.label}</dd>
+                    <dd className="text-sm text-white/70">{stat.label}</dd>
                   </div>
                 ))}
               </dl>
             </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
