@@ -112,15 +112,19 @@ export default function ScrollText({
   return (
     /*
       absolute inset-0 z-20: sits above video (z-0) and gradient overlay (z-10).
-      flex flex-col so the headline group can flex-1 to vertical-center while
-      the stats row anchors naturally at the bottom.
+      Both headline and stats share the same centred column so stats appear in
+      the same viewport zone as the headline — not as a footer.
     */
-    <div className="absolute inset-0 z-20 flex flex-col pointer-events-none">
+    <div className="absolute inset-0 z-20 flex flex-col justify-center pointer-events-none">
+      <div className="mx-auto w-full max-w-[80rem] px-6 md:px-12">
 
-      {/* Headline + subtitle + CTAs — centred vertically in remaining space */}
-      <div className="flex flex-1 flex-col justify-center">
-        <div className="mx-auto w-full max-w-[80rem] px-6 md:px-12">
-          <div ref={textRef} className="flex flex-col gap-5 md:max-w-2xl">
+        {/*
+          Relative wrapper: both the headline and the stats occupy the same
+          top-left anchor so the stats literally replace the headline as it
+          fades out, rather than sitting below it.
+        */}
+        <div className="relative md:max-w-2xl">
+          <div ref={textRef} className="flex flex-col gap-5">
             {eyebrow && (
               <div className="flex items-center gap-3">
                 <span className="h-[3px] w-10 rounded-sm bg-orange" aria-hidden="true" />
@@ -201,29 +205,28 @@ export default function ScrollText({
               </div>
             )}
           </div>
+
+          {/* Stats — inside the relative wrapper, overlaid at the same top-left anchor as the headline */}
+          {hasStats && (
+            <div
+              ref={statsRef}
+              className="absolute top-0 left-0 w-full"
+              style={{ opacity: prefersReducedMotion ? 1 : 0 }}
+            >
+              <dl className="flex flex-wrap items-baseline gap-x-10 gap-y-5">
+                {stats!.map((stat) => (
+                  <div key={stat.label} className="flex items-baseline gap-3">
+                    <dt className="font-display text-5xl font-bold text-orange-light">
+                      {stat.value}
+                    </dt>
+                    <dd className="text-base text-white/70">{stat.label}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Stats row — anchored at the bottom, same horizontal alignment as headline */}
-      {hasStats && (
-        <div
-          ref={statsRef}
-          className="mx-auto w-full max-w-[80rem] px-6 pb-10 md:px-12 md:pb-14"
-          style={{ opacity: prefersReducedMotion ? 1 : 0 }}
-        >
-          {/* Matches HeroSection.astro stats block exactly */}
-          <dl className="mt-4 flex flex-wrap items-baseline gap-x-8 gap-y-4 border-t border-white/15 pt-6">
-            {stats!.map((stat) => (
-              <div key={stat.label} className="flex items-baseline gap-2">
-                <dt className="font-display text-2xl font-bold text-orange-light">
-                  {stat.value}
-                </dt>
-                <dd className="text-sm text-white/70">{stat.label}</dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-      )}
     </div>
   );
 }
