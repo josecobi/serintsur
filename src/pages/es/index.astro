@@ -114,8 +114,8 @@ const clientLogoData: ClientLogoData[] = clientLogos.map((c) => ({
   size: c.logoSize,
 }));
 
-const heroStats = stats
-  ? [
+const heroStats: { value: string; label: string }[] = stats
+  ? ([
       stats.projectsCompleted !== undefined && {
         value: `+${stats.projectsCompleted}`,
         label: 'Proyectos',
@@ -128,8 +128,12 @@ const heroStats = stats
         value: `${stats.teamSize}`,
         label: 'Profesionales',
       },
-    ].filter(Boolean) as { value: string; label: string }[]
-  : [];
+    ].filter(Boolean) as { value: string; label: string }[])
+  : [
+      { value: '+120', label: 'Proyectos' },
+      { value: '7', label: 'Años' },
+      { value: '30', label: 'Profesionales' },
+    ];
 
 const statsForBand: Stat[] = [];
 if (stats) {

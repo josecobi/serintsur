@@ -5,7 +5,7 @@
   re-encode with: ffmpeg -i in.mp4 -g 15 -keyint_min 15 -c:v libx264 -crf 23 out.mp4
   (that places a keyframe every 0.5 s at 30 fps)
 */
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 interface ScrollVideoProps {
@@ -16,8 +16,6 @@ interface ScrollVideoProps {
 
 export default function ScrollVideo({ src, poster, containerRef }: ScrollVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [canPlay, setCanPlay] = useState(false);
-  const [hasPoster, setHasPoster] = useState(false);
 
   const prefersReducedMotion =
     typeof window !== 'undefined' &&
@@ -27,14 +25,7 @@ export default function ScrollVideo({ src, poster, containerRef }: ScrollVideoPr
     if (!src) {
       console.warn('[ScrollVideo] No src — drop hero.mp4 at public/videos/hero.mp4');
     }
-
-    if (poster) {
-      const img = new Image();
-      img.onload = () => setHasPoster(true);
-      img.onerror = () => setHasPoster(false);
-      img.src = poster;
-    }
-  }, [src, poster]);
+  }, [src]);
 
   useEffect(() => {
     if (prefersReducedMotion) return;
@@ -60,11 +51,11 @@ export default function ScrollVideo({ src, poster, containerRef }: ScrollVideoPr
     };
   }, [containerRef, prefersReducedMotion]);
 
-  // Reduced-motion: static poster or navy background — no scroll binding
+  // Reduced-motion: static poster or plain navy background
   if (prefersReducedMotion) {
     return (
       <div className="absolute inset-0 z-0 overflow-hidden">
-        {poster && hasPoster ? (
+        {poster ? (
           <img
             src={poster}
             alt=""
@@ -79,36 +70,18 @@ export default function ScrollVideo({ src, poster, containerRef }: ScrollVideoPr
   }
 
   return (
-    <>
-      <div className="absolute inset-0 z-0 overflow-hidden">
-        <video
-          ref={videoRef}
-          src={src}
-          poster={hasPoster ? poster : undefined}
-          muted
-          playsInline
-          preload="auto"
-          crossOrigin="anonymous"
-          className="h-full w-full object-cover"
-          aria-hidden="true"
-          onCanPlay={() => setCanPlay(true)}
-        />
-      </div>
-
-      {/*
-        Loading overlay lives OUTSIDE the z-0 container so its z-50 is
-        respected in the sticky panel's stacking context.
-      */}
-      {!canPlay && (
-        <div
-          className="absolute inset-0 z-50 flex items-center justify-center bg-navy-dark/80"
-          aria-hidden="true"
-        >
-          <span className="font-sans text-sm tracking-widest text-white">
-            Cargando…
-          </span>
-        </div>
-      )}
-    </>
+    <div className="absolute inset-0 z-0 overflow-hidden">
+      <video
+        ref={videoRef}
+        src={src}
+        poster={poster}
+        muted
+        playsInline
+        preload="auto"
+        crossOrigin="anonymous"
+        className="h-full w-full object-cover"
+        aria-hidden="true"
+      />
+    </div>
   );
 }
