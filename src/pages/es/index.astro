@@ -9,6 +9,7 @@
 */
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import HeroSection from '~/components/sections/HeroSection.astro';
+import ScrollHero from '~/components/scroll-hero/ScrollHero';
 import StatsSection, { type Stat } from '~/components/sections/StatsSection.astro';
 import ServicesGrid, {
   type Service as ServiceCard,
@@ -113,8 +114,8 @@ const clientLogoData: ClientLogoData[] = clientLogos.map((c) => ({
   size: c.logoSize,
 }));
 
-const heroStats = stats
-  ? [
+const heroStats: { value: string; label: string }[] = stats
+  ? ([
       stats.projectsCompleted !== undefined && {
         value: `+${stats.projectsCompleted}`,
         label: 'Proyectos',
@@ -127,8 +128,12 @@ const heroStats = stats
         value: `${stats.teamSize}`,
         label: 'Profesionales',
       },
-    ].filter(Boolean) as { value: string; label: string }[]
-  : [];
+    ].filter(Boolean) as { value: string; label: string }[])
+  : [
+      { value: '+120', label: 'Proyectos' },
+      { value: '7', label: 'Años' },
+      { value: '30', label: 'Profesionales' },
+    ];
 
 const statsForBand: Stat[] = [];
 if (stats) {
@@ -156,14 +161,14 @@ if (stats) {
   description={t.site.descriptionShort}
   lang={locale}
 >
-  <HeroSection
+  <ScrollHero
+    client:load
     eyebrow="Serintsur Multiservicios S.L."
     title="Construimos y rehabilitamos espacios que perduran"
     subtitle={tagline}
     primaryCta={{ label: t.common.requestQuote, href: `/${locale}/presupuesto/` }}
     secondaryCta={{ label: t.common.seeProjects, href: `/${locale}/proyectos/` }}
     stats={heroStats}
-    image={heroImageUrl ? { src: heroImageUrl, alt: heroImageAlt } : undefined}
   />
 
   {serviceCards.length > 0 && (

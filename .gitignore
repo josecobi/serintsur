@@ -33,3 +33,4 @@ Thumbs.db
 sanity/dist/
 .vercel
 .env*.local
+.playwright-mcp/
