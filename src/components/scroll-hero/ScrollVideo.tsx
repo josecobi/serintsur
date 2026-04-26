@@ -80,6 +80,15 @@ export default function ScrollVideo({ src, poster, containerRef }: ScrollVideoPr
 
   return (
     <div className="absolute inset-0 z-0 overflow-hidden bg-navy-dark">
+      {/* Pixel-identical frame-0 image shows instantly while the video loads */}
+      {poster && (
+        <img
+          src={poster}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      )}
       <video
         ref={videoRef}
         src={src}
@@ -88,7 +97,7 @@ export default function ScrollVideo({ src, poster, containerRef }: ScrollVideoPr
         playsInline
         preload="auto"
         crossOrigin="anonymous"
-        className="h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-cover"
         style={{ backgroundColor: 'var(--color-navy-dark)' }}
         aria-hidden="true"
       />
